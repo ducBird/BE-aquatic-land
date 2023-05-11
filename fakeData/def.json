@@ -1,0 +1,80 @@
+{
+  "products": [
+    {
+      "created_at": "2020-10-22T03:37:03.058Z",
+      "id": 1028655526,
+      "images": [
+        {
+          "created_at": "2020-10-22T03:37:03.058",
+          "id": 1169154560,
+          "position": 1,
+          "product_id": 1028655526,
+          "src": "https://product.hstatic.net/31.jpg",
+          "updated_at": "2020-10-22T03:37:03.058",
+          "variant_ids": [1063014645]
+        },
+        {
+          "created_at": "2020-10-22T03:37:03.058",
+          "id": 1169154575,
+          "position": 7,
+          "product_id": 1028655526,
+          "src": "https://product.hstatic.net/21.jpg",
+          "updated_at": "2020-10-22T03:37:03.058",
+          "variant_ids": []
+        }
+      ],
+      "product_type": "Khác",
+      "published_at": "2020-10-22T03:37:00.905Z",
+      "published_scope": "global",
+      "title": "Váy Quây dài",
+      "updated_at": "2020-10-22T03:37:08.195Z",
+      "variants": [
+        {
+          "compare_at_price": 800000.0,
+          "created_at": "2020-10-22T03:37:03.058Z",
+          "id": 1063014645,
+          "inventory_quantity": 0,
+          "position": 1,
+          "price": 600000.0,
+          "product_id": 1028655526,
+          "title": "Đen / S",
+          "updated_at": "2020-10-22T03:37:03.121Z",
+          "image_id": 1169154560,
+          "option1": "Đen",
+          "option2": "S",
+          "option3": null
+        },
+        {
+          "compare_at_price": 800000.0,
+          "created_at": "2020-10-22T03:37:03.058Z",
+          "id": 1063014647,
+          "inventory_quantity": 0,
+          "position": 2,
+          "price": 600000.0,
+          "product_id": 1028655526,
+          "title": "Đen / M",
+          "updated_at": "2020-10-22T03:37:03.121Z",
+          "image_id": 1169154564,
+          "option1": "Đen",
+          "option2": "M",
+          "option3": null
+        }
+      ],
+      "vendor": "Khác",
+      "options": [
+        {
+          "name": "Color",
+          "id": 2353555090,
+          "position": 1,
+          "product_id": 1028655526
+        },
+        {
+          "name": "Size",
+          "id": 2353555091,
+          "position": 2,
+          "product_id": 1028655526
+        }
+      ]
+    }
+  ]
+}
