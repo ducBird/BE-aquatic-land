@@ -48,6 +48,7 @@ const productSchema = new Schema(
       ref: "suppliers",
       required: true,
     },
+    variants: [{ type: Schema.Types.ObjectId, ref: "product_variants" }],
     is_delete: { type: Boolean, default: false },
   },
   {
@@ -57,6 +58,26 @@ const productSchema = new Schema(
     // toObject: { virtuals: true },
   }
 );
+
+// Virtual with Populate
+productSchema.virtual("category", {
+  ref: "categories",
+  localField: "category_id",
+  foreignField: "_id",
+  justOne: true,
+});
+productSchema.virtual("sub_category", {
+  ref: "sub_categories",
+  localField: "sub_category_id",
+  foreignField: "_id",
+  justOne: true,
+});
+productSchema.virtual("supplier", {
+  ref: "suppliers",
+  localField: "supplier_id",
+  foreignField: "_id",
+  justOne: true,
+});
 
 // productSchema.virtual("stock").get(function () {
 //   return this.variants.reduce((total, variant) => {
@@ -86,26 +107,6 @@ const productSchema = new Schema(
 //   // Trả về giá trị tìm được
 //   return minPrice;
 // });
-
-// Virtual with Populate
-productSchema.virtual("category", {
-  ref: "categories",
-  localField: "category_id",
-  foreignField: "_id",
-  justOne: true,
-});
-productSchema.virtual("sub_category", {
-  ref: "sub_categories",
-  localField: "sub_category_id",
-  foreignField: "_id",
-  justOne: true,
-});
-productSchema.virtual("supplier", {
-  ref: "suppliers",
-  localField: "supplierId",
-  foreignField: "_id",
-  justOne: true,
-});
 
 productSchema.set("toJSON", { virtuals: true });
 productSchema.set("toObject", { virtuals: true });

@@ -2,22 +2,30 @@ import moment from "moment";
 
 export const convertDateMiddleware = (req, res, next) => {
   const { body } = req;
-  const { birthDay, dateOfManufacture, exprirationDate } = body;
+  const { birth_day, date_of_manufacture, expiration_date } = body;
 
-  if (birthDay) {
-    const formattedDate = moment(birthDay, "DD-MM-YYYY").toISOString();
-    req.body.birthDay = formattedDate;
+  if (birth_day) {
+    const formattedDate = moment(
+      birth_day,
+      "YYYY/MM/DD HH:mm:ss"
+    ).toISOString();
+    req.body.birth_day = formattedDate;
   }
 
-  if (dateOfManufacture) {
-    const formattedDate = moment(dateOfManufacture, "DD-MM-YYYY").toISOString();
-    req.body.dateOfManufacture = formattedDate;
+  if (date_of_manufacture) {
+    const formattedDate = moment(
+      date_of_manufacture,
+      "YYYY/MM/DD HH:mm:ss"
+    ).toISOString();
+    req.body.date_of_manufacture = formattedDate;
   }
 
-  if (exprirationDate) {
-    const formattedDate = moment(exprirationDate, "DD-MM-YYYY").toISOString();
-    req.body.exprirationDate = formattedDate;
+  if (expiration_date) {
+    const formattedDate = moment(
+      expiration_date,
+      "YYYY/MM/DD HH:mm:ss"
+    ).toISOString();
+    req.body.expiration_date = formattedDate;
   }
-
   next();
 };

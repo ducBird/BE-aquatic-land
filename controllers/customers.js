@@ -9,17 +9,17 @@ export const getCustomers = (req, res, next) => {
       .then((result) => {
         const formattedResult = result.map((customer) => {
           const formattedCreatedAt = moment(customer.createdAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           const formattedUpdatedAt = moment(customer.updatedAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
-          const formattedBirthDay = moment(customer.birthDay).format(
-            "DD/MM/YYYY-HH:mm:ss"
+          const formattedBirthDay = moment(customer.birth_day).format(
+            "YYYY/MM/DD HH:mm:ss"
           );
           return {
             ...customer.toObject(),
-            birthDay: formattedBirthDay,
+            birth_day: formattedBirthDay,
             createdAt: formattedCreatedAt,
             updatedAt: formattedUpdatedAt,
           };
@@ -41,17 +41,17 @@ export const getByIdCustomer = (req, res, next) => {
     const { id } = req.params;
     Customer.findById(id).then((result) => {
       const formattedCreatedAt = moment(result.createdAt).format(
-        "DD/MM/YYYY-HH:mm:ss"
+        "YYYY/MM/DD HH:mm:ss"
       );
       const formattedUpdatedAt = moment(result.updatedAt).format(
-        "DD/MM/YYYY-HH:mm:ss"
+        "YYYY/MM/DD HH:mm:ss"
       );
-      const formattedBirthDay = moment(result.birthDay).format(
-        "DD/MM/YYYY-HH:mm:ss"
+      const formattedBirthDay = moment(result.birth_day).format(
+        "YYYY/MM/DD HH:mm:ss"
       );
       res.status(200).send({
         ...result.toObject(),
-        birthDay: formattedBirthDay,
+        birth_day: formattedBirthDay,
         createdAt: formattedCreatedAt,
         updatedAt: formattedUpdatedAt,
       });
@@ -134,18 +134,18 @@ export const deleteCustomer = (req, res, next) => {
     newItem.save().then((result) => {
       const formattedResult = {
         ...result._doc,
-        createdAt: moment(result.createdAt).format("DD/MM/YYYY-HH:mm:ss"),
-        updatedAt: moment(result.updatedAt).format("DD/MM/YYYY-HH:mm:ss"),
+        createdAt: moment(result.createdAt).format("YYYY/MM/DD HH:mm:ss"),
+        updatedAt: moment(result.updatedAt).format("YYYY/MM/DD HH:mm:ss"),
       };
       res.send(formattedResult);
     });
     //  hoặc
     // newItem.save().then((result) => {
     //   const formattedCreatedAt = moment(result.createdAt).format(
-    //     "DD/MM/YYYY-HH:mm:ss"
+    //     "YYYY/MM/DD HH:mm:ss"
     //   );
     //   const formattedUpdatedAt = moment(result.updatedAt).format(
-    //     "DD/MM/YYYY-HH:mm:ss"
+    //     "YYYY/MM/DD HH:mm:ss"
     //   );
     //   res.status(200).send({
     //     ...result.toObject(),
@@ -159,7 +159,7 @@ export const deleteCustomer = (req, res, next) => {
   } */
 
 /* 
-Trong đoạn mã trên, result._doc là đối tượng kết quả trả về sau khi lưu thành công, moment(result.createdAt) sẽ trả về một đối tượng moment từ giá trị của trường createdAt, và moment(result.createdAt).format("DD/MM/YYYY-HH:mm:ss") sẽ trả về một chuỗi định dạng ngày giờ theo yêu cầu. Tương tự với trường updatedAt.
+Trong đoạn mã trên, result._doc là đối tượng kết quả trả về sau khi lưu thành công, moment(result.createdAt) sẽ trả về một đối tượng moment từ giá trị của trường createdAt, và moment(result.createdAt).format("YYYY/MM/DD HH:mm:ss") sẽ trả về một chuỗi định dạng ngày giờ theo yêu cầu. Tương tự với trường updatedAt.
 Lưu ý rằng các trường createdAt và updatedAt được tự động tạo bởi timestamps của mongoose, vì vậy bạn không cần phải ghi đè lên chúng trước khi lưu dữ liệu.
 */
 // };

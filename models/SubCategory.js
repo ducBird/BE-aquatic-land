@@ -14,6 +14,7 @@ const subCategorySchema = new Schema(
       ref: "categories",
       required: true,
     },
+    is_delete: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

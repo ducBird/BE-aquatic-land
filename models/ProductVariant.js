@@ -48,6 +48,7 @@ const productVariantSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "products",
     },
+    is_delete: { type: Boolean, default: false },
   },
   {
     timestamps: true,

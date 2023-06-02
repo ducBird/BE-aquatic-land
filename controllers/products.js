@@ -6,28 +6,30 @@ export const getProducts = (req, res, next) => {
   try {
     Product.find()
       .sort({ name: 1 })
-      // .populate("category")
-      // .populate("supplier")
+      .populate("category")
+      .populate("supplier")
+      .populate("sub_category")
+      .populate("variants")
       .then((result) => {
         const formattedResult = result.map((product) => {
           const formattedCreatedAt = moment(product.createdAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           const formattedUpdatedAt = moment(product.updatedAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           const formattedDateOfmanufacture = moment(
-            product.dateOfmanufacture
-          ).format("DD/MM/YYYY-HH:mm:ss");
+            product.date_of_manufacture
+          ).format("YYYY/MM/DD HH:mm:ss");
           const formattedExprirationDate = moment(
-            product.exprirationDate
-          ).format("DD/MM/YYYY-HH:mm:ss");
+            product.expiration_date
+          ).format("YYYY/MM/DD HH:mm:ss");
           return {
             ...product.toObject(),
             createdAt: formattedCreatedAt,
             updatedAt: formattedUpdatedAt,
-            dateOfmanufacture: formattedDateOfmanufacture,
-            exprirationDate: formattedExprirationDate,
+            date_of_manufacture: formattedDateOfmanufacture,
+            expiration_date: formattedExprirationDate,
           };
         });
         res.status(200).send(formattedResult);
@@ -49,10 +51,10 @@ export const getProductsByIdCategory = (req, res, next) => {
       .then((result) => {
         const formattedResult = result.map((variant) => {
           const formattedCreatedAt = moment(variant.createdAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           const formattedUpdatedAt = moment(variant.updatedAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           return {
             ...variant.toObject(),
@@ -80,10 +82,10 @@ export const getProductsByIdSubCategory = (req, res, next) => {
       .then((result) => {
         const formattedResult = result.map((variant) => {
           const formattedCreatedAt = moment(variant.createdAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           const formattedUpdatedAt = moment(variant.updatedAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           return {
             ...variant.toObject(),
@@ -105,10 +107,10 @@ export const getByIdProduct = (req, res, next) => {
     const { id } = req.params;
     Product.findById(id).then((result) => {
       const formattedCreatedAt = moment(result.createdAt).format(
-        "DD/MM/YYYY-HH:mm:ss"
+        "YYYY/MM/DD HH:mm:ss"
       );
       const formattedUpdatedAt = moment(result.updatedAt).format(
-        "DD/MM/YYYY-HH:mm:ss"
+        "YYYY/MM/DD HH:mm:ss"
       );
       res.status(200).send({
         ...result.toObject(),
@@ -134,6 +136,13 @@ export const search = (req, res, next) => {
 export const postProduct = async (req, res, next) => {
   try {
     const data = req.body;
+    const product = await Product.findOne({
+      name: data.name,
+    });
+    if (product) {
+      res.status(406).send({ msg: "Tên sản phẩm đã bị trùng lặp!" });
+      return;
+    }
     const newItem = new Product(data);
     newItem.save().then((result) => {
       res.send(result);

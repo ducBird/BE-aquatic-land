@@ -6,13 +6,14 @@ export const getSubCategories = (req, res, next) => {
   try {
     SubCategory.find()
       .sort({ name: 1 })
+      .populate("category")
       .then((result) => {
         const formattedResult = result.map((subCategory) => {
           const formattedCreatedAt = moment(subCategory.createdAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           const formattedUpdatedAt = moment(subCategory.updatedAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           return {
             ...subCategory.toObject(),
@@ -55,10 +56,10 @@ export const getByIdSubCategory = (req, res, next) => {
     const { id } = req.params;
     SubCategory.findById(id).then((result) => {
       const formattedCreatedAt = moment(result.createdAt).format(
-        "DD/MM/YYYY-HH:mm:ss"
+        "YYYY/MM/DD HH:mm:ss"
       );
       const formattedUpdatedAt = moment(result.updatedAt).format(
-        "DD/MM/YYYY-HH:mm:ss"
+        "YYYY/MM/DD HH:mm:ss"
       );
       res.status(200).send({
         ...result.toObject(),
