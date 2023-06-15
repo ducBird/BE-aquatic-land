@@ -15,7 +15,7 @@ const router = express.Router();
 router.get("/", getProducts);
 router.get("/product/:id", getByIdProduct);
 router.get("/:category_id", getProductsByIdCategory);
-router.get("/sub/:sub_category_id", getProductsByIdSubCategory);
+router.get("/:category_id/sub/:sub_category_id", getProductsByIdSubCategory);
 router.get("/search", search);
 router.post("/", convertDateMiddleware, postProduct);
 router.patch("/:id", convertDateMiddleware, updateProduct);
