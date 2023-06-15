@@ -5,14 +5,14 @@ import moment from "moment";
 export const getProductVariants = (req, res, next) => {
   try {
     ProductVariant.find()
-      .populate("product")
+      // .populate("product")
       .then((result) => {
         const formattedResult = result.map((product) => {
           const formattedCreatedAt = moment(product.createdAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           const formattedUpdatedAt = moment(product.updatedAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           return {
             ...product.toObject(),
@@ -40,10 +40,10 @@ export const getVariantsByProductId = (req, res, next) => {
       .then((result) => {
         const formattedResult = result.map((variant) => {
           const formattedCreatedAt = moment(variant.createdAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           const formattedUpdatedAt = moment(variant.updatedAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           return {
             ...variant.toObject(),

@@ -9,10 +9,10 @@ export const getCategories = (req, res, next) => {
       .then((result) => {
         const formattedResult = result.map((category) => {
           const formattedCreatedAt = moment(category.createdAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           const formattedUpdatedAt = moment(category.updatedAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           return {
             ...category.toObject(),
@@ -37,10 +37,10 @@ export const getByIdCategory = (req, res, next) => {
     const { id } = req.params;
     Category.findById(id).then((result) => {
       const formattedCreatedAt = moment(result.createdAt).format(
-        "DD/MM/YYYY-HH:mm:ss"
+        "YYYY/MM/DD HH:mm:ss"
       );
       const formattedUpdatedAt = moment(result.updatedAt).format(
-        "DD/MM/YYYY-HH:mm:ss"
+        "YYYY/MM/DD HH:mm:ss"
       );
       res.status(200).send({
         ...result.toObject(),
@@ -66,6 +66,13 @@ export const search = (req, res, next) => {
 export const postCategory = async (req, res, next) => {
   try {
     const data = req.body;
+    const category = await Category.findOne({
+      name: data.name,
+    });
+    if (category) {
+      res.status(406).send({ msg: "Category name has been duplicated!" });
+      return;
+    }
     const newItem = new Category(data);
     await newItem.save();
     res.status(201).send(newItem);
@@ -76,7 +83,7 @@ export const postCategory = async (req, res, next) => {
 };
 
 // PATCH BY ID
-export const updateCategory = (req, res, next) => {
+export const updateCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
     const data = req.body;

@@ -9,10 +9,10 @@ export const getSuppliers = (req, res, next) => {
       .then((result) => {
         const formattedResult = result.map((supplier) => {
           const formattedCreatedAt = moment(supplier.createdAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           const formattedUpdatedAt = moment(supplier.updatedAt).format(
-            "DD/MM/YYYY-HH:mm:ss"
+            "YYYY/MM/DD HH:mm:ss"
           );
           return {
             ...supplier.toObject(),
@@ -37,10 +37,10 @@ export const getByIdSupplier = (req, res, next) => {
     const { id } = req.params;
     Supplier.findById(id).then((result) => {
       const formattedCreatedAt = moment(result.createdAt).format(
-        "DD/MM/YYYY-HH:mm:ss"
+        "YYYY/MM/DD HH:mm:ss"
       );
       const formattedUpdatedAt = moment(result.updatedAt).format(
-        "DD/MM/YYYY-HH:mm:ss"
+        "YYYY/MM/DD HH:mm:ss"
       );
       res.status(200).send({
         ...result.toObject(),
