@@ -1,15 +1,10 @@
 import mongoose from "mongoose";
 const { Schema, model } = mongoose;
-
-// Mongoose Datatypes:
-// https://mongoosejs.com/docs/schematypes.html
-
-// ========================Begin OrderDetail================================
+import moment from "moment";
 const orderDetailSchema = new Schema({
   product_id: { type: Schema.Types.ObjectId, ref: "products", required: true },
   quantity: { type: Number, require: true, min: 0 },
 });
-// Virtual with Populate
 orderDetailSchema.virtual("product", {
   ref: "products",
   localField: "product_id",
@@ -18,102 +13,143 @@ orderDetailSchema.virtual("product", {
 });
 orderDetailSchema.set("toJSON", { virtuals: true });
 orderDetailSchema.set("toObject", { virtuals: true });
-// ========================End OrderDetail================================
 
-// ========================Begin Order================================
-const orderSchema = new Schema({
-  shipped_date: {
-    type: Date,
-    validate: {
-      validator: function (value) {
-        if (!value) return true;
-        if (value < this.createdDate) {
+const orderSchema = new Schema(
+  {
+    //Khi nhập thì nhập "dd/mm/yyyy"
+    shipped_date: {
+      type: String,
+      default: function () {
+        return moment().add(1, "hour").format("DD/MM/YYYY");
+      },
+      //cộng thên 1 giờ để lớn hơn ngày tạo đơn hàng
+      validate: {
+        validator: function (value) {
+          if (!value) return false;
+          // if (
+          //   moment(value, "DD/MM/YYYY").isValid() &&
+          //   moment(value, "DD/MM/YYYY").isSameOrAfter(this.createdAt)
+          //   // Kiểm tra dữ liệu có đúng ngày tháng năm hay không
+          //   // và kiểm tra ngày đó cùng ngày hoặc sau ngày tạo không
+          // ) {
+          //   return true;
+          // } else {
+          //   return false;
+          // }
+          const createdDate = moment(this.createdAt).startOf("day");
+          const shippedDate = moment(value, "DD/MM/YYYY")
+            .startOf("day")
+            .add(1, "hour");
+          //lấy ngày default để so sánh
+          return shippedDate.isAfter(createdDate);
+        },
+        message: "Ngày vận chuyển không hợp lệ hoặc nhỏ hơn ngày tạo đơn hàng!",
+      },
+    },
+    status: {
+      type: String,
+      required: [true, "Trạng thái bắt buộc phải nhập"],
+      default: "WAITING CONFIRMATION ORDER",
+      validate: {
+        validator: (value) => {
+          if (
+            [
+              "WAITING CONFIRMATION ORDER",
+              "CONFIRMED ORDER",
+              "SHIPPING CONFIRMATION",
+              "DELIVERY IN PROGRESS",
+              "DELIVERY SUCCESS",
+              "RECEIVED ORDER",
+              "CANCELED ORDER",
+            ].includes(value)
+          ) {
+            return true;
+          }
           return false;
-        }
-        return true;
+        },
+        message: `Trạng thái: {VALUE} không hợp lệ!`,
       },
-      message: `Ngày vận chuyển: {VALUE} không hợp lệ!`,
     },
-  },
-  status: {
-    type: String,
-    required: [true, "Trạng thái bắt buộc phải nhập"],
-    default: "WAITING CONFIRMATION ORDER",
-    validate: {
-      validator: (value) => {
-        if (
-          [
-            "WAITING CONFIRMATION ORDER",
-            "CONFIRMED ORDER",
-            "SHIPPING CONFIRMATION",
-            "DELIVERY IN PROGRESS",
-            "DELIVERY SUCCESS",
-            "RECEIVED ORDER",
-            "CANCELED ORDER",
-          ].includes(value)
-        ) {
-          return true;
-        }
-        return false;
+
+    description: String,
+
+    shipping_information: {
+      type: String,
+      required: [true, "Địa chỉ giao hàng bắt buộc phải nhập"],
+    },
+    shipping_city: {
+      type: String,
+      required: [true, "Thành phố bắt buộc phải nhập"],
+    },
+    email: {
+      type: String,
+      required: true,
+      validate: {
+        validator: function (value) {
+          const emailRegex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+          return emailRegex.test(value);
+        },
+        message: `{VALUE} không phải là email hợp lệ`,
+        // message: (props) => `{props.value} is not a valid email!`,
       },
-      message: `Trạng thái: {VALUE} không hợp lệ!`,
+      unique: [true, "email đã tồn tại"],
     },
-  },
-
-  description: String,
-
-  shipping_address: {
-    type: String,
-    required: [true, "Địa chỉ giao hàng bắt buộc phải nhập"],
-  },
-
-  payment_type: {
-    type: String,
-    required: [true, "Hình thức thanh toán bắt buộc phải nhập"],
-    default: "CASH",
-    validate: {
-      validator: (value) => {
-        if (["CASH", "VNPAY", "MOMO"].includes(value.toUpperCase())) {
-          return true;
-        }
-        return false;
+    payment_information: {
+      type: String,
+      required: [true, "Hình thức thanh toán bắt buộc phải nhập"],
+      default: "CASH",
+      validate: {
+        validator: (value) => {
+          if (["CASH", "VNPAY", "MOMO"].includes(value.toUpperCase())) {
+            return true;
+          }
+          return false;
+        },
+        message: `Hình thức thanh toán: {VALUE} không hợp lệ!`,
       },
-      message: `Hình thức thanh toán: {VALUE} không hợp lệ!`,
     },
+
+    image_confirm: {
+      type: String,
+      required: false,
+    },
+
+    customer_id: {
+      type: Schema.Types.ObjectId,
+      ref: "customers",
+      required: false,
+    },
+
+    first_name: {
+      type: String,
+      required: [true, "Họ - Tên đệm bắt buộc phải nhập"],
+    },
+
+    last_name: {
+      type: String,
+      required: [true, "Tên bắt buộc phải nhập"],
+    },
+    phoneNumber: {
+      type: String,
+      required: false,
+    },
+    employee_id: {
+      type: Schema.Types.ObjectId,
+      ref: "employees",
+      required: false,
+    },
+
+    order_details: [orderDetailSchema],
+
+    is_delete: { type: Boolean, default: false },
   },
-
-  image_confirm: {
-    type: String,
-    required: true,
-  },
-
-  customer_id: {
-    type: Schema.Types.ObjectId,
-    ref: "customers",
-    required: false,
-  },
-
-  // tên
-  full_name: {
-    type: String,
-    required: false,
-  },
-
-  // số điện thoại
-  phone_number: {
-    type: String,
-    required: false,
-  },
-
-  employee_id: {
-    type: Schema.Types.ObjectId,
-    ref: "employees",
-    required: false,
-  },
-
-  order_details: [orderDetailSchema],
-
-  is_delete: { type: Boolean, default: false },
+  { timestamps: true } /* tự động tạo 2 field createdAt - updatedAt */
+);
+orderSchema.virtual("full_name").get(function () {
+  return this.first_name + " " + this.last_name;
+});
+orderSchema.virtual("full_address").get(function () {
+  return this.shipping_information + " " + this.shipping_city;
 });
 
 // Virtual with Populate
@@ -132,7 +168,6 @@ orderSchema.virtual("employee", {
 });
 orderSchema.set("toJSON", { virtuals: true });
 orderSchema.set("toObject", { virtuals: true });
-// ========================End Order================================
 
 const Order = model("orders", orderSchema);
 

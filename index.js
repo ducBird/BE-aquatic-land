@@ -11,7 +11,7 @@ import productsRouter from "./routers/products.js";
 import productVariantsRouter from "./routers/product.variants.js";
 import employeesRouter from "./routers/employees.js";
 import uploadRouter from "./routers/upload.js";
-
+import ordersRouter from "./routers/orders.js";
 const app = express();
 /*Middleware này sẽ giúp bạn chuyển đổi các dữ liệu truyền lên bằng phương thức POST thành một object JavaScript để sử dụng*/
 app.use(bodyParser.json());
@@ -54,6 +54,7 @@ app.use("/sub-categories", subCategoriesRouter);
 app.use("/customers", customersRouter);
 app.use("/suppliers", suppliersRouter);
 app.use("/products", productsRouter);
+app.use("/orders", ordersRouter);
 app.use("/variants-p", productVariantsRouter);
 app.use("/employees", employeesRouter);
 app.use("/upload", uploadRouter);
