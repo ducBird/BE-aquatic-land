@@ -105,20 +105,23 @@ export const getProductsByIdSubCategory = (req, res, next) => {
 export const getByIdProduct = (req, res, next) => {
   try {
     const { id } = req.params;
-    Product.findById(id).then((result) => {
-      const formattedCreatedAt = moment(result.createdAt).format(
-        "YYYY/MM/DD HH:mm:ss"
-      );
-      const formattedUpdatedAt = moment(result.updatedAt).format(
-        "YYYY/MM/DD HH:mm:ss"
-      );
-      res.status(200).send({
-        ...result.toObject(),
-        createdAt: formattedCreatedAt,
-        updatedAt: formattedUpdatedAt,
+    Product.findById(id)
+      // .populate("category")
+      .populate("variants")
+      .then((result) => {
+        const formattedCreatedAt = moment(result.createdAt).format(
+          "YYYY/MM/DD HH:mm:ss"
+        );
+        const formattedUpdatedAt = moment(result.updatedAt).format(
+          "YYYY/MM/DD HH:mm:ss"
+        );
+        res.status(200).send({
+          ...result.toObject(),
+          createdAt: formattedCreatedAt,
+          updatedAt: formattedUpdatedAt,
+        });
+        return;
       });
-      return;
-    });
   } catch (error) {
     console.log("error", error);
     res.sendStatus(500);
