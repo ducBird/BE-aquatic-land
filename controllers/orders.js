@@ -22,8 +22,12 @@ export const getOrder = async (req, res, next) => {
     //     });
     //     res.status(200).send(formattedResult);
     //   });
-    const order = await Order.find({});
-    res.send(order);
+    Order.find()
+      .sort({ createdAt: -1 })
+      .populate("order_details.product")
+      .then((result) => {
+        res.send(result);
+      });
   } catch (error) {
     res.sendStatus(500);
   }

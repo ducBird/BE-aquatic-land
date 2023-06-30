@@ -3,8 +3,24 @@ import moment from "moment";
 
 // GETS
 export const getProducts = (req, res, next) => {
+  const query = {};
+
   try {
-    Product.find()
+    if (req.query.sub_category_id || req.query.category_id) {
+      query[req.query.sub_category_id ? "sub_category_id" : "category_id"] = req
+        .query.sub_category_id
+        ? req.query.sub_category_id
+        : req.query.category_id;
+    }
+    if (req.query.min_price && req.query.max_price) {
+      query.price = {
+        $gte: parseInt(req.query.min_price) | undefined,
+        $lte: parseInt(req.query.max_price) | undefined,
+      };
+    }
+
+    console.log(query);
+    Product.find(query)
       .sort({ name: 1 })
       .populate("category")
       .populate("supplier")
@@ -48,6 +64,7 @@ export const getProductsByIdCategory = (req, res, next) => {
   try {
     Product.find({ category_id })
       .populate("category")
+      .populate("variants")
       .then((result) => {
         const formattedResult = result.map((variant) => {
           const formattedCreatedAt = moment(variant.createdAt).format(
@@ -79,6 +96,7 @@ export const getProductsByIdSubCategory = (req, res, next) => {
   try {
     Product.find({ sub_category_id })
       .populate("sub_category")
+      .populate("variants")
       .then((result) => {
         const formattedResult = result.map((variant) => {
           const formattedCreatedAt = moment(variant.createdAt).format(
@@ -184,5 +202,16 @@ export const deleteProduct = (req, res, next) => {
     console.log(err);
     res.sendStatus(500);
     return;
+  }
+};
+
+export const searchProducts = async (req, res, next) => {
+  try {
+    let { name } = req.body;
+    let query = { name: new RegExp(`${name}`, "i") };
+    const results = await Product.find(query);
+    res.json(results);
+  } catch (error) {
+    res.status(500).json(error);
   }
 };

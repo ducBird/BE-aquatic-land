@@ -9,6 +9,10 @@ const productSchema = new Schema(
       min: [0, "Discount must be greater than 0"],
       max: [100, "Discount must be less than 100"],
     },
+    price: {
+      type: Number,
+      required: true,
+    },
     product_image: String,
     description: {
       type: String,
@@ -77,6 +81,11 @@ productSchema.virtual("supplier", {
   localField: "supplier_id",
   foreignField: "_id",
   justOne: true,
+});
+
+//Virtuals
+productSchema.virtual("total").get(function () {
+  return (this.price * (100 - this.discount)) / 100;
 });
 
 // productSchema.virtual("stock").get(function () {
