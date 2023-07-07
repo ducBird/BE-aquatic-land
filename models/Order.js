@@ -100,7 +100,9 @@ const orderSchema = new Schema(
       default: "CASH",
       validate: {
         validator: (value) => {
-          if (["CASH", "VNPAY", "MOMO"].includes(value.toUpperCase())) {
+          if (
+            ["CASH", "VNPAY", "MOMO", "PAYPAL"].includes(value.toUpperCase())
+          ) {
             return true;
           }
           return false;
@@ -108,7 +110,11 @@ const orderSchema = new Schema(
         message: `Hình thức thanh toán: {VALUE} không hợp lệ!`,
       },
     },
-
+    payment_status: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     image_confirm: {
       type: String,
       required: false,
@@ -141,6 +147,10 @@ const orderSchema = new Schema(
     order_details: [orderDetailSchema],
 
     is_delete: { type: Boolean, default: false },
+    total_money_order: {
+      type: Number,
+      required: false,
+    },
   },
   { timestamps: true } /* tự động tạo 2 field createdAt - updatedAt */
 );

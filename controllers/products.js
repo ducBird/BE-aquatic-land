@@ -19,7 +19,6 @@ export const getProducts = (req, res, next) => {
       };
     }
 
-    console.log(query);
     Product.find(query)
       .sort({ name: 1 })
       .populate("category")

@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
-import "./configs/dotenv.config.js";
+import "./config/dotenv.config.js";
 import categoriesRouter from "./routers/categories.js";
 import subCategoriesRouter from "./routers/subcategories.js";
 import customersRouter from "./routers/customers.js";
@@ -12,6 +12,9 @@ import productVariantsRouter from "./routers/product.variants.js";
 import employeesRouter from "./routers/employees.js";
 import uploadRouter from "./routers/upload.js";
 import ordersRouter from "./routers/orders.js";
+import paymentRouter from "./routers/payment.js";
+import paymentPaypalRouter from "./routers/paymentPaypal.js";
+
 const app = express();
 /*Middleware này sẽ giúp bạn chuyển đổi các dữ liệu truyền lên bằng phương thức POST thành một object JavaScript để sử dụng*/
 app.use(bodyParser.json());
@@ -28,12 +31,23 @@ app.use(
       "http://127.0.0.1:3000",
       "http://localhost:5173",
       "http://127.0.0.1:5173",
+      "https://sandbox.vnpayment.vn",
+      "https://www.google.com",
+      "*",
     ],
-    methods: "GET,POST,PATCH,DELETE,PUT",
+    methods: "GET,POST,PATCH,DELETE,PUT,OPTIONS",
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    preflightContinue: false,
   })
 );
+app.use((_req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "*");
 
+  next();
+});
+// });
 const PORT = process.env.PORT || 9000;
 const connectDB = async () => {
   try {
@@ -58,3 +72,5 @@ app.use("/orders", ordersRouter);
 app.use("/variants-p", productVariantsRouter);
 app.use("/employees", employeesRouter);
 app.use("/upload", uploadRouter);
+app.use("/payment", paymentRouter);
+app.use("/payment-paypal", paymentPaypalRouter);
