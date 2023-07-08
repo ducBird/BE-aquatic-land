@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 import moment from "moment";
 const orderDetailSchema = new Schema({
-  product_id: { type: Schema.Types.ObjectId, ref: "products", required: true },
-  quantity: { type: Number, require: true, min: 0 },
+  product_id: { type: Schema.Types.ObjectId, ref: "products", required: false },
+  quantity: { type: Number, require: false, min: 0 },
 });
 orderDetailSchema.virtual("product", {
   ref: "products",
@@ -100,7 +100,9 @@ const orderSchema = new Schema(
       default: "CASH",
       validate: {
         validator: (value) => {
-          if (["CASH", "VNPAY", "MOMO"].includes(value.toUpperCase())) {
+          if (
+            ["CASH", "VNPAY", "MOMO", "PAYPAL"].includes(value.toUpperCase())
+          ) {
             return true;
           }
           return false;
@@ -108,7 +110,11 @@ const orderSchema = new Schema(
         message: `Hình thức thanh toán: {VALUE} không hợp lệ!`,
       },
     },
-
+    payment_status: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     image_confirm: {
       type: String,
       required: false,
@@ -138,10 +144,13 @@ const orderSchema = new Schema(
       ref: "employees",
       required: false,
     },
-
     order_details: [orderDetailSchema],
 
     is_delete: { type: Boolean, default: false },
+    total_money_order: {
+      type: Number,
+      required: false,
+    },
   },
   { timestamps: true } /* tự động tạo 2 field createdAt - updatedAt */
 );
@@ -149,7 +158,7 @@ orderSchema.virtual("full_name").get(function () {
   return this.first_name + " " + this.last_name;
 });
 orderSchema.virtual("full_address").get(function () {
-  return this.shipping_information + " " + this.shipping_city;
+  return this.shipping_information + " - " + this.shipping_city;
 });
 
 // Virtual with Populate

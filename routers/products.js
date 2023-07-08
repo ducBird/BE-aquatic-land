@@ -8,6 +8,7 @@ import {
   updateProduct,
   getProductsByIdCategory,
   getProductsByIdSubCategory,
+  searchProducts,
 } from "../controllers/products.js";
 import { convertDateMiddleware } from "../middlewares/convertDate.js";
 
@@ -20,5 +21,6 @@ router.get("/search", search);
 router.post("/", convertDateMiddleware, postProduct);
 router.patch("/:id", convertDateMiddleware, updateProduct);
 router.delete("/:id", deleteProduct);
+router.post("/search-products", searchProducts);
 
 export default router;
