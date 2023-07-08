@@ -211,7 +211,7 @@ export const searchProducts = async (req, res, next) => {
   try {
     let { name } = req.body;
     let query = { name: new RegExp(`${name}`, "i") };
-    const results = await Product.find(query);
+    const results = await Product.find(query).populate("variants");
     res.json(results);
   } catch (error) {
     res.status(500).json(error);

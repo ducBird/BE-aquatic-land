@@ -49,9 +49,13 @@ export const postOrder = async (req, res, next) => {
   try {
     const data = req.body;
     const newItem = new Order(data);
-    newItem.save().then((result) => {
-      res.send(result);
-    });
+    if (data.order_details && data.order_details.length > 0) {
+      newItem.save().then((result) => {
+        res.send(result);
+      });
+    } else {
+      res.status(400).send({ message: "Order details are required." });
+    }
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
