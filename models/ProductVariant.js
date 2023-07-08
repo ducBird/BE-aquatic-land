@@ -2,11 +2,6 @@ import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
 
-const imageSchema = new mongoose.Schema({
-  src: String,
-  position: Number,
-});
-
 const optionSchema = new Schema(
   {
     value: {
@@ -21,7 +16,7 @@ const optionSchema = new Schema(
       min: [0, "inventory_quantity must be greater than 0"],
     },
     images: {
-      type: [imageSchema],
+      type: String,
     },
   },
   { timestamps: true }
