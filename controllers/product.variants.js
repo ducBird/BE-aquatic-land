@@ -159,82 +159,82 @@ export const updateProductVariant = async (req, res) => {
     // console.log("items", items);
     // Lấy danh sách các _id trong mảng items (variants) được gửi từ client
     const itemIds = items.map((item) => item._id);
-    console.log("itemIds", itemIds);
+    // console.log("itemIds", itemIds);
     // Lấy danh sách các _id variant trong database dựa trên product_id
     const existingItemIds = await Product.find({
       _id: { $in: req.body.product_id },
     }).then((result) => {
       return result[0].variants;
     });
-    console.log("existingItemIds", existingItemIds);
+    // console.log("existingItemIds", existingItemIds);
     // Lấy danh sách các _id không tồn tại trong mảng items mà client gửi về
     const nonExistingItemIds = existingItemIds
       .map((item) => item._id.toString())
       .filter((id) => !itemIds.includes(id));
-    console.log("nonExistingItemIds", nonExistingItemIds);
+    // console.log("nonExistingItemIds", nonExistingItemIds);
     // Lấy danh sách các _id tồn tại trong mảng items trừ _id không tồn tại ở trong mảng items
     const itemIdVariantsInProduct = existingItemIds
       .map((item) => item._id.toString())
       .filter((id) => itemIds.includes(id));
-    console.log("itemIdVariantsInProduct", itemIdVariantsInProduct);
+    // console.log("itemIdVariantsInProduct", itemIdVariantsInProduct);
     // Lấy danh sách các bản ghi mới
     const newItems = items.filter((item) => {
       if (!item._id) return item;
     });
-    console.log("newItems", newItems);
+    // console.log("newItems", newItems);
     // Xóa hết nếu items mà client gửi về là một mảng rỗng
-    // if (items.length === 0) {
-    //   nonExistingItemIds.forEach(async (id) => {
-    //     await ProductVariant.deleteOne({ _id: id });
-    //     await Product.updateOne(
-    //       { _id: req.body.product_id },
-    //       { variants: itemIdVariantsInProduct }
-    //     );
-    //   });
-    // } else {
-    //   // Cập nhật các bản ghi có _id nằm trong mảng items
-    //   // const updatePromises =
-    //   items.map(async (item) => {
-    //     const updateData = { ...item };
-    //     // console.log("updateData", updateData);
-    //     delete updateData._id; // Xóa trường _id để tránh ghi đè trong quá trình cập nhật
-    //     await ProductVariant.updateOne({ _id: item._id }, { $set: updateData });
-    //   });
+    if (items.length === 0) {
+      nonExistingItemIds.forEach(async (id) => {
+        await ProductVariant.deleteOne({ _id: id });
+        await Product.updateOne(
+          { _id: req.body.product_id },
+          { variants: itemIdVariantsInProduct }
+        );
+      });
+    } else {
+      // Cập nhật các bản ghi có _id nằm trong mảng items
+      // const updatePromises =
+      items.map(async (item) => {
+        const updateData = { ...item };
+        // console.log("updateData", updateData);
+        delete updateData._id; // Xóa trường _id để tránh ghi đè trong quá trình cập nhật
+        await ProductVariant.updateOne({ _id: item._id }, { $set: updateData });
+      });
 
-    //   // Xóa các bản ghi có _id không tồn tại trong mảng items
-    //   // const deletePromises =
-    //   nonExistingItemIds.map(async (id) => {
-    //     // xóa variants không tồn tại ở value mà client gửi về
-    //     await ProductVariant.deleteOne({ _id: id });
-    //     // cập nhập lại mảng variants trong ở record product
-    //     await Product.updateOne(
-    //       { _id: req.body.product_id },
-    //       { variants: itemIdVariantsInProduct }
-    //     );
-    //   });
+      // Xóa các bản ghi có _id không tồn tại trong mảng items
+      // const deletePromises =
+      nonExistingItemIds.map(async (id) => {
+        // xóa variants không tồn tại ở value mà client gửi về
+        await ProductVariant.deleteOne({ _id: id });
+        // cập nhập lại mảng variants trong ở record product
+        await Product.updateOne(
+          { _id: req.body.product_id },
+          { variants: itemIdVariantsInProduct }
+        );
+      });
 
-    //   // Thêm các bản ghi mới có _id không nằm trong danh sách các _id hiện có trong items
-    //   if (newItems.length > 0) {
-    //     // const insertPromises =
-    //     newItems.map(async (newItem) => {
-    //       Object.assign(newItem, { product_id: req.body.product_id });
-    //       const newVariant = new ProductVariant(newItem);
-    //       await newVariant.save();
-    //       // console.log("newVariant", newVariant);
-    //       itemIdVariantsInProduct.push(newVariant._id);
-    //       await Product.updateOne(
-    //         { _id: req.body.product_id },
-    //         { variants: itemIdVariantsInProduct }
-    //       );
-    //     });
-    //   }
-    //   // Chạy các promises để cập nhật và xóa bản ghi
-    //   // await Promise.all([
-    //   //   ...updatePromises,
-    //   //   ...deletePromises,
-    //   //   ...insertPromises,
-    //   // ]);
-    // }
+      // Thêm các bản ghi mới có _id không nằm trong danh sách các _id hiện có trong items
+      if (newItems.length > 0) {
+        // const insertPromises =
+        newItems.map(async (newItem) => {
+          Object.assign(newItem, { product_id: req.body.product_id });
+          const newVariant = new ProductVariant(newItem);
+          await newVariant.save();
+          // console.log("newVariant", newVariant);
+          itemIdVariantsInProduct.push(newVariant._id);
+          await Product.updateOne(
+            { _id: req.body.product_id },
+            { variants: itemIdVariantsInProduct }
+          );
+        });
+      }
+      // Chạy các promises để cập nhật và xóa bản ghi
+      // await Promise.all([
+      //   ...updatePromises,
+      //   ...deletePromises,
+      //   ...insertPromises,
+      // ]);
+    }
     const result = await ProductVariant.find({
       product_id: req.body.product_id,
     });
