@@ -1,5 +1,9 @@
 import Customer from "../models/Customer.js";
 import moment from "moment";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { FRONTLINE_URL } from "../constants/URLS.js";
+import { sendEmail } from "./sendMail.js";
 
 // GETS
 export const getCustomers = (req, res, next) => {
@@ -33,7 +37,7 @@ export const getCustomers = (req, res, next) => {
 
 // GET BY ID
 export const getByIdCustomer = (req, res, next) => {
-  if (req.params.id === "search") {
+  if (req.params.id === "search" || req.params.id === "logout") {
     next();
     return;
   }
@@ -124,6 +128,152 @@ export const deleteCustomer = (req, res, next) => {
     res.sendStatus(500);
     return;
   }
+};
+
+// Register
+export const registerCustomer = async (req, res) => {
+  try {
+    const { first_name, last_name, email, password } = req.body;
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    if (!first_name || !last_name || !email || !password)
+      return res.status(400).json({ msg: "Please fill in all fields." });
+
+    if (!validateEmail(email))
+      return res.status(400).json({ msg: "Invalid emails." });
+
+    const user = await Customer.findOne({ email });
+    if (user)
+      return res.status(400).json({ msg: "This email already exists." });
+
+    if (password.length < 5 || password.length > 50)
+      return res
+        .status(400)
+        .json({ msg: "Password must be between 5 and 50 characters." });
+
+    const newUser = {
+      first_name,
+      last_name,
+      email,
+      password: passwordHash,
+    };
+
+    const activation_token = createActivationToken(newUser);
+
+    const url = `${FRONTLINE_URL}/customers/activate/${activation_token}`;
+    sendEmail(email, url, "Verify your email address");
+
+    res.status(200).json({
+      msg: "Register Success! Please activate your email to start.",
+      customers: newUser,
+    });
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+export const activateEmail = async (req, res) => {
+  try {
+    const { activation_token } = req.body;
+    const user = jwt.verify(
+      activation_token,
+      process.env.ACTIVATION_TOKEN_SECRET
+    );
+
+    const { first_name, last_name, email, password } = user;
+
+    const check = await Customer.findOne({ email });
+    if (check)
+      return res.status(400).json({ msg: "This email already exists." });
+    // console.log(user);
+
+    const newUser = new Customer({
+      first_name,
+      last_name,
+      email,
+      password,
+    });
+
+    await newUser.save();
+
+    res.json({ msg: "Account has been activated!" });
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await Customer.findOne({ email });
+    if (!user)
+      return res.status(400).json({ msg: "This email does not exist." });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(400).json({ msg: "Password is incorrect." });
+
+    const refresh_token = createRefreshToken({ id: user._id });
+    res.cookie("refreshtoken", refresh_token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+    const { password: string, ...others } = user._doc;
+
+    res.json({ msg: "Login success!", user: { ...others } });
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+export const getAccessToken = (req, res) => {
+  try {
+    const rf_token = req.cookies.refreshtoken;
+    if (!rf_token) return res.status(400).json({ msg: "Please login now!" });
+
+    jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+      if (err) return res.status(400).json({ msg: "Please login now!" });
+
+      const access_token = createAccessToken({ id: user.id });
+      res.json({ access_token });
+    });
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie("refreshtoken");
+    res.json({ msg: "Logged out." });
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+function validateEmail(email) {
+  const re =
+    /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(email);
+}
+
+const createActivationToken = (payload) => {
+  return jwt.sign(payload, process.env.ACTIVATION_TOKEN_SECRET, {
+    expiresIn: "10m",
+  });
+};
+
+const createAccessToken = (payload) => {
+  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "15m",
+  });
+};
+
+const createRefreshToken = (payload) => {
+  return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "7d",
+  });
 };
 
 /* có thể dùng cách này đối với đoạn mã postCustomer */

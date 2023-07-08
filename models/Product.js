@@ -41,7 +41,6 @@ const productSchema = new Schema(
     sub_category_id: {
       type: Schema.Types.ObjectId,
       ref: "sub_categories",
-      required: true,
     },
     supplier_id: {
       type: Schema.Types.ObjectId,

@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import path from "path";
 import "./configs/dotenv.config.js";
 import categoriesRouter from "./routers/categories.js";
 import subCategoriesRouter from "./routers/subcategories.js";
@@ -19,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 /* có thể dùng middleware này để phân tích được JSON (application/json)*/
 /* app.use(express.json());
 // app.use(express.urlencoded({ extended: false }));*/
-
+app.use(cookieParser());
 app.use(
   cors({
     // origin: "*",
