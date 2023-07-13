@@ -243,9 +243,10 @@ export const login = async (req, res) => {
 export const getAccessToken = (req, res) => {
   try {
     // const rf_token = req.cookies.refreshtoken;
-    const rf_token = req.body.rf_token;
-    if (!rf_token) return res.status(400).json({ msg: "Please login now!" });
-    jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+    const refresh_token = req.body.refresh_token;
+    if (!refresh_token)
+      return res.status(400).json({ msg: "Please login now!" });
+    jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
       if (err) return res.status(400).json({ msg: "Please login now!" });
       const access_token = createAccessToken({ id: user.id });
       res.json({ access_token });

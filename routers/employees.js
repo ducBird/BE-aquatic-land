@@ -3,6 +3,7 @@ import {
   deleteEmployee,
   getByIdEmployee,
   getEmployees,
+  login,
   postEmployee,
   search,
   updateEmployee,
@@ -16,5 +17,6 @@ router.get("/search", search);
 router.post("/", convertDateMiddleware, postEmployee);
 router.patch("/:id", convertDateMiddleware, updateEmployee);
 router.delete("/:id", deleteEmployee);
+router.post("/login", login);
 
 export default router;

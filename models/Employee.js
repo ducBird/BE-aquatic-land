@@ -25,7 +25,7 @@ const employeeSchema = new Schema(
         message: `{VALUE} không phải là số điện thoại hợp lệ`,
       },
     },
-    address: { type: String, required: [true, "Địa chỉ bắt buộc phải nhập"] },
+    address: { type: String },
     email: {
       type: String,
       required: [true, "Email bắt buộc phải nhập"],
@@ -57,7 +57,7 @@ const employeeSchema = new Schema(
       },
     },
     active: { type: Boolean, default: true },
-    roles: { type: [] },
+    roles: { type: Boolean, default: false },
     is_delete: { type: Boolean, default: false },
   },
   { timestamps: true } /* tự động tạo 2 field createdAt - updatedAt */

@@ -7,12 +7,16 @@ import {
   search,
   updateCategory,
 } from "../controllers/categories.js";
+import {
+  verifyToken,
+  verifyTokenAdmin,
+} from "../middlewares/middlewareauth.js";
 const router = express.Router();
-router.get("/", getCategories);
-router.get("/:id", getByIdCategory);
+router.get("/", verifyToken, getCategories);
+router.get("/:id", verifyToken, getByIdCategory);
 router.get("/search", search);
-router.post("/", postCategory);
-router.patch("/:id", updateCategory);
-router.delete("/:id", deleteCategory);
+router.post("/", verifyTokenAdmin, postCategory);
+router.patch("/:id", verifyToken, updateCategory);
+router.delete("/:id", verifyTokenAdmin, deleteCategory);
 
 export default router;

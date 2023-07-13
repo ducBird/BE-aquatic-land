@@ -16,3 +16,13 @@ export const verifyToken = async (req, res, next) => {
     return res.status(401).json("You're not authenticated");
   }
 };
+
+export const verifyTokenAdmin = (req, res, next) => {
+  verifyToken(req, res, () => {
+    if (req.user.roles) {
+      next();
+    } else {
+      res.status(403).json("You're not allowed to do that!");
+    }
+  });
+};
