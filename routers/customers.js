@@ -13,9 +13,10 @@ import {
   updateCustomer,
 } from "../controllers/customers.js";
 import { convertDateMiddleware } from "../middlewares/convertDate.js";
+import { verifyToken } from "../middlewares/middlewareauth.js";
 
 const router = express.Router();
-router.get("/", getCustomers);
+router.get("/", verifyToken, getCustomers);
 router.get("/:id", getByIdCustomer);
 router.get("/search", search);
 router.post("/", convertDateMiddleware, postCustomer);

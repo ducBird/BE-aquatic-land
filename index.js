@@ -39,7 +39,12 @@ app.use(
     ],
     methods: "GET,POST,PATCH,DELETE,PUT,OPTIONS",
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "access_token",
+      "refreshtoken",
+    ],
     preflightContinue: false,
   })
 );

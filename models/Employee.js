@@ -12,7 +12,8 @@ const employeeSchema = new Schema(
     last_name: { type: String, required: [true, "Tên bắt buộc phải nhập"] },
     avatar: {
       type: String,
-      default: "/uploads/img/employees/employees_feedback.png",
+      default:
+        "https://res.cloudinary.com/dnqqkpsjk/image/upload/v1689253493/AquaticLand/employees/accountant_jxvwv1.png",
     },
     phone_number: {
       type: String,

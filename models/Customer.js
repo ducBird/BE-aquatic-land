@@ -11,7 +11,8 @@ const customerSchema = new Schema(
     last_name: { type: String, required: [true, "Tên bắt buộc phải nhập"] },
     avatar: {
       type: String,
-      default: "/uploads/img/customers/customer_feedback.png",
+      default:
+        "https://res.cloudinary.com/dnqqkpsjk/image/upload/v1689253452/AquaticLand/customers/user_wlliq2.png",
     },
     phone_number: {
       type: String,
