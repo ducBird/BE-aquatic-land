@@ -84,19 +84,7 @@ productSchema.virtual("supplier", {
 
 //Virtuals
 productSchema.virtual("total").get(function () {
-  const basePrice = this.price; // Giá gốc của sản phẩm
-  // Tính giá cộng thêm từ các biến thể
-  let variantPrice = 0;
-  if (this.variants && this.variants.length > 0) {
-    const variant = this.variants[0]; // Lấy biến thể đầu tiên
-
-    if (variant.options && variant.options.length > 0) {
-      const option = variant.options[0]; // Lấy option đầu tiên
-
-      variantPrice = option?.add_valuation || 0; // Lấy giá cộng thêm từ option (nếu tồn tại)
-    }
-  }
-  return ((basePrice + variantPrice) * (100 - this.discount)) / 100;
+  return (this.price * (100 - this.discount)) / 100;
 });
 
 // productSchema.virtual("stock").get(function () {
