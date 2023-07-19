@@ -12,8 +12,8 @@ import {
   verifyTokenAdmin,
 } from "../middlewares/middlewareauth.js";
 const router = express.Router();
-router.get("/", verifyToken, getCategories);
-router.get("/:id", verifyToken, getByIdCategory);
+router.get("/", getCategories);
+router.get("/:id", getByIdCategory);
 router.get("/search", search);
 router.post("/", verifyTokenAdmin, postCategory);
 router.patch("/:id", verifyToken, updateCategory);

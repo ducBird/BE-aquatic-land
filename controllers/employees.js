@@ -153,7 +153,10 @@ export const login = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ msg: "Password is incorrect." });
     const access_token = createAccessToken({ id: user.id, roles: user.roles });
-    const refresh_token = createRefreshToken({ id: user._id });
+    const refresh_token = createRefreshToken({
+      id: user._id,
+      roles: user.roles,
+    });
     res.cookie("refreshtoken", refresh_token, {
       // httpOnly: true,
       // maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
@@ -169,6 +172,25 @@ export const login = async (req, res) => {
       user: { ...others },
       access_token,
       refresh_token,
+    });
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+export const getAccessToken = (req, res) => {
+  try {
+    // const rf_token = req.cookies.refreshtoken;
+    const refresh_token = req.body.refresh_token;
+    if (!refresh_token)
+      return res.status(400).json({ msg: "Please login now!" });
+    jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+      if (err) return res.status(400).json({ msg: "Please login now!" });
+      const access_token = createAccessToken({
+        id: user.id,
+        roles: user.roles,
+      });
+      res.json({ access_token });
     });
   } catch (err) {
     return res.status(500).json({ msg: err.message });

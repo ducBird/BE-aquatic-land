@@ -7,16 +7,22 @@ import {
   postEmployee,
   search,
   updateEmployee,
+  getAccessToken,
 } from "../controllers/employees.js";
 import { convertDateMiddleware } from "../middlewares/convertDate.js";
+import {
+  verifyToken,
+  verifyTokenAdmin,
+} from "../middlewares/middlewareauth.js";
 
 const router = express.Router();
-router.get("/", getEmployees);
+router.get("/", verifyTokenAdmin, getEmployees);
 router.get("/:id", getByIdEmployee);
 router.get("/search", search);
-router.post("/", convertDateMiddleware, postEmployee);
-router.patch("/:id", convertDateMiddleware, updateEmployee);
-router.delete("/:id", deleteEmployee);
+router.post("/", verifyTokenAdmin, convertDateMiddleware, postEmployee);
+router.patch("/:id", verifyTokenAdmin, convertDateMiddleware, updateEmployee);
+router.delete("/:id", verifyTokenAdmin, deleteEmployee);
 router.post("/login", login);
+router.post("/refresh-token", getAccessToken);
 
 export default router;

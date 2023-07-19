@@ -13,15 +13,18 @@ import {
   updateCustomer,
 } from "../controllers/customers.js";
 import { convertDateMiddleware } from "../middlewares/convertDate.js";
-import { verifyToken } from "../middlewares/middlewareauth.js";
+import {
+  verifyToken,
+  verifyTokenAdmin,
+} from "../middlewares/middlewareauth.js";
 
 const router = express.Router();
 router.get("/", verifyToken, getCustomers);
 router.get("/:id", getByIdCustomer);
 router.get("/search", search);
-router.post("/", convertDateMiddleware, postCustomer);
-router.patch("/:id", convertDateMiddleware, updateCustomer);
-router.delete("/:id", deleteCustomer);
+router.post("/", verifyTokenAdmin, convertDateMiddleware, postCustomer);
+router.patch("/:id", verifyToken, convertDateMiddleware, updateCustomer);
+router.delete("/:id", verifyTokenAdmin, deleteCustomer);
 router.post("/register", registerCustomer);
 router.post("/activation", activateEmail);
 router.post("/login", login);
