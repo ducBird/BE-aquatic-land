@@ -39,7 +39,12 @@ app.use(
     ],
     methods: "GET,POST,PATCH,DELETE,PUT,OPTIONS",
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "access_token",
+      "refreshtoken",
+    ],
     preflightContinue: false,
   })
 );
@@ -50,7 +55,7 @@ app.use((_req, res, next) => {
   next();
 });
 // });
-const PORT = process.env.PORT || 9000;
+const PORT = process.env.PORT || 80;
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.DATABASE_MONGODB_URL);

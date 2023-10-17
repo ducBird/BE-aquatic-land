@@ -12,7 +12,8 @@ const employeeSchema = new Schema(
     last_name: { type: String, required: [true, "Tên bắt buộc phải nhập"] },
     avatar: {
       type: String,
-      default: "/uploads/img/employees/employees_feedback.png",
+      default:
+        "https://res.cloudinary.com/dnqqkpsjk/image/upload/v1689253493/AquaticLand/employees/accountant_jxvwv1.png",
     },
     phone_number: {
       type: String,
@@ -24,7 +25,7 @@ const employeeSchema = new Schema(
         message: `{VALUE} không phải là số điện thoại hợp lệ`,
       },
     },
-    address: { type: String, required: [true, "Địa chỉ bắt buộc phải nhập"] },
+    address: { type: String },
     email: {
       type: String,
       required: [true, "Email bắt buộc phải nhập"],
@@ -56,7 +57,7 @@ const employeeSchema = new Schema(
       },
     },
     active: { type: Boolean, default: true },
-    roles: { type: [] },
+    roles: { type: Boolean, default: false },
     is_delete: { type: Boolean, default: false },
   },
   { timestamps: true } /* tự động tạo 2 field createdAt - updatedAt */

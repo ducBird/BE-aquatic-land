@@ -1,5 +1,7 @@
 import Employee from "../models/Employee.js";
 import moment from "moment";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 // GETS
 export const getEmployees = (req, res, next) => {
@@ -72,18 +74,32 @@ export const search = (req, res, next) => {
 // POST
 export const postEmployee = async (req, res, next) => {
   try {
-    const data = req.body;
-    //check whether this current user exists in our database
-    const user = await Employee.findOne({
-      email: data.email,
+    const { first_name, last_name, email, password } = req.body;
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    if (!first_name || !last_name || !email || !password)
+      return res.status(400).json({ msg: "Please fill in all fields." });
+
+    if (!validateEmail(email))
+      return res.status(400).json({ msg: "Invalid emails." });
+
+    const user = await Employee.findOne({ email });
+    if (user)
+      return res.status(400).json({ msg: "This email already exists." });
+
+    if (password.length < 5 || password.length > 50)
+      return res
+        .status(400)
+        .json({ msg: "Password must be between 5 and 50 characters." });
+
+    const newUser = new Employee({
+      first_name,
+      last_name,
+      email,
+      password: passwordHash,
     });
-    if (user) {
-      res.status(406).send({ msg: "Tài khoản email đã tồn tại!" });
-      return;
-    }
-    // create a new employee
-    const newItem = new Employee(data);
-    newItem.save().then((result) => {
+    newUser.save().then((result) => {
       res.send(result);
       return;
     });
@@ -124,4 +140,92 @@ export const deleteEmployee = (req, res, next) => {
     res.sendStatus(500);
     return;
   }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await Employee.findOne({ email });
+    if (!user)
+      return res.status(400).json({ msg: "This email does not exist." });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(400).json({ msg: "Password is incorrect." });
+    const access_token = createAccessToken({ id: user.id, roles: user.roles });
+    const refresh_token = createRefreshToken({
+      id: user._id,
+      roles: user.roles,
+    });
+    res.cookie("refreshtoken", refresh_token, {
+      // httpOnly: true,
+      // maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      httpOnly: true,
+      secure: false,
+      path: "/",
+      sameSite: "strict",
+    });
+    const { password: string, ...others } = user._doc;
+    // console.log(refresh_token);
+    res.json({
+      msg: "Login success!",
+      user: { ...others },
+      access_token,
+      refresh_token,
+    });
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+export const getAccessToken = (req, res) => {
+  try {
+    // const rf_token = req.cookies.refreshtoken;
+    const refresh_token = req.body.refresh_token;
+    if (!refresh_token)
+      return res.status(400).json({ msg: "Please login now!" });
+    jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+      if (err) return res.status(400).json({ msg: "Please login now!" });
+      const access_token = createAccessToken({
+        id: user.id,
+        roles: user.roles,
+      });
+      res.json({ access_token });
+    });
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie("refreshtoken");
+    res.json({ msg: "Logged out." });
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+function validateEmail(email) {
+  const re =
+    /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(email);
+}
+
+const createActivationToken = (payload) => {
+  return jwt.sign(payload, process.env.ACTIVATION_TOKEN_SECRET, {
+    expiresIn: "10m",
+  });
+};
+
+const createAccessToken = (payload) => {
+  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "15m",
+  });
+};
+
+const createRefreshToken = (payload) => {
+  return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "7d",
+  });
 };

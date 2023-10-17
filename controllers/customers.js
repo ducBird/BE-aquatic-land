@@ -159,7 +159,11 @@ export const registerCustomer = async (req, res) => {
       password: passwordHash,
     };
 
-    const activation_token = createActivationToken(newUser);
+    // const activation_token = createActivationToken(newUser);
+    // decode activate_token vì có dấu chấm khi gửi về client sẽ không nhận diện được đường dẫn
+    const activation_token = Buffer.from(
+      createActivationToken(newUser)
+    ).toString("base64");
 
     const url = `${FRONTLINE_URL}/customers/activate/${activation_token}`;
     sendEmail(email, url, "Verify your email address");
@@ -175,9 +179,9 @@ export const registerCustomer = async (req, res) => {
 
 export const activateEmail = async (req, res) => {
   try {
-    const { activation_token } = req.body;
+    const { activated_token } = req.body;
     const user = jwt.verify(
-      activation_token,
+      activated_token,
       process.env.ACTIVATION_TOKEN_SECRET
     );
 
@@ -213,15 +217,24 @@ export const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       return res.status(400).json({ msg: "Password is incorrect." });
-
+    const access_token = createAccessToken({ id: user.id });
     const refresh_token = createRefreshToken({ id: user._id });
     res.cookie("refreshtoken", refresh_token, {
+      // httpOnly: true,
+      // maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: false,
+      path: "/",
+      sameSite: "strict",
     });
     const { password: string, ...others } = user._doc;
-
-    res.json({ msg: "Login success!", user: { ...others } });
+    // console.log(refresh_token);
+    res.json({
+      msg: "Login success!",
+      user: { ...others },
+      access_token,
+      refresh_token,
+    });
   } catch (err) {
     return res.status(500).json({ msg: err.message });
   }
@@ -229,12 +242,12 @@ export const login = async (req, res) => {
 
 export const getAccessToken = (req, res) => {
   try {
-    const rf_token = req.cookies.refreshtoken;
-    if (!rf_token) return res.status(400).json({ msg: "Please login now!" });
-
-    jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+    // const rf_token = req.cookies.refreshtoken;
+    const refresh_token = req.body.refresh_token;
+    if (!refresh_token)
+      return res.status(400).json({ msg: "Please login now!" });
+    jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
       if (err) return res.status(400).json({ msg: "Please login now!" });
-
       const access_token = createAccessToken({ id: user.id });
       res.json({ access_token });
     });
