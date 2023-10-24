@@ -49,18 +49,19 @@ const orderSchema = new Schema(
     status: {
       type: String,
       required: [true, "Trạng thái bắt buộc phải nhập"],
-      default: "WAITING CONFIRMATION ORDER",
+      default: "WAIT FOR CONFIRMATION",
       validate: {
         validator: (value) => {
           if (
             [
-              "WAITING CONFIRMATION ORDER",
-              "CONFIRMED ORDER",
-              "SHIPPING CONFIRMATION",
-              "DELIVERY IN PROGRESS",
-              "DELIVERY SUCCESS",
-              "RECEIVED ORDER",
-              "CANCELED ORDER",
+              "WAIT FOR CONFIRMATION",
+              "WAITING FOR PICKUP",
+              "DELIVERING",
+              "DELIVERED",
+              "CANCELLED",
+              "RETURNS",
+              "RETURNING",
+              "RETURNED",
             ].includes(value)
           ) {
             return true;
@@ -97,12 +98,10 @@ const orderSchema = new Schema(
     payment_information: {
       type: String,
       required: [true, "Hình thức thanh toán bắt buộc phải nhập"],
-      default: "CASH",
+      default: "COD",
       validate: {
         validator: (value) => {
-          if (
-            ["CASH", "VNPAY", "MOMO", "PAYPAL"].includes(value.toUpperCase())
-          ) {
+          if (["VNPAY", "MOMO", "PAYPAL"].includes(value.toUpperCase())) {
             return true;
           }
           return false;
@@ -141,6 +140,7 @@ const orderSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "employees",
       required: false,
+      default: null,
     },
     order_details: [orderDetailSchema],
 
