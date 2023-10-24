@@ -119,13 +119,11 @@ const orderSchema = new Schema(
       type: String,
       required: false,
     },
-
     customer_id: {
       type: Schema.Types.ObjectId,
       ref: "customers",
       required: false,
     },
-
     first_name: {
       type: String,
       required: [true, "Họ - Tên đệm bắt buộc phải nhập"],

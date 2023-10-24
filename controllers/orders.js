@@ -25,6 +25,7 @@ export const getOrder = async (req, res, next) => {
     Order.find()
       .sort({ createdAt: -1 })
       .populate("order_details.product")
+      .populate("customer")
       .then((result) => {
         res.send(result);
       });
@@ -37,7 +38,7 @@ export const getOrder = async (req, res, next) => {
 export const getOrderId = async (req, res, next) => {
   try {
     const orderId = req.params.id;
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(orderId).populate("customer");
     res.send(order);
   } catch (error) {
     res.sendStatus(500);

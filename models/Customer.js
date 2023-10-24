@@ -60,6 +60,8 @@ const customerSchema = new Schema(
     account_type: { type: String, default: "email" },
     active: { type: Boolean, default: true },
     is_delete: { type: Boolean, default: false },
+    // điểm tích lũy
+    points: { type: Number, default: 0, required: false },
   },
   { timestamps: true }
 );
