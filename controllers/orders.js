@@ -25,8 +25,22 @@ export const getOrder = async (req, res, next) => {
     Order.find()
       .sort({ createdAt: -1 })
       .populate("order_details.product")
+      .populate("employee")
       .then((result) => {
-        res.send(result);
+        const formattedResult = result.map((order) => {
+          const formattedCreatedAt = moment(order.createdAt).format(
+            "DD/MM/YYYY-HH:mm:ss"
+          );
+          const formattedUpdatedAt = moment(order.updatedAt).format(
+            "DD/MM/YYYY-HH:mm:ss"
+          );
+          return {
+            ...order.toObject(),
+            createdAt: formattedCreatedAt,
+            updatedAt: formattedUpdatedAt,
+          };
+        });
+        res.status(200).send(formattedResult);
       });
   } catch (error) {
     res.sendStatus(500);

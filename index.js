@@ -55,7 +55,7 @@ app.use((_req, res, next) => {
   next();
 });
 // });
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 9000;
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.DATABASE_MONGODB_URL);
