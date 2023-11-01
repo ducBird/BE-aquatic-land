@@ -15,8 +15,8 @@ const router = express.Router();
 router.get("/", getCategories);
 router.get("/:id", getByIdCategory);
 router.get("/search", search);
-router.post("/", verifyTokenAdmin, postCategory);
-router.patch("/:id", verifyToken, updateCategory);
-router.delete("/:id", verifyTokenAdmin, deleteCategory);
+router.post("/", postCategory);
+router.patch("/:id", updateCategory);
+router.delete("/:id", deleteCategory);
 
 export default router;

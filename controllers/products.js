@@ -22,8 +22,8 @@ export const getProducts = (req, res, next) => {
     Product.find(query)
       .sort({ name: 1 })
       .populate("category")
-      .populate("supplier")
       .populate("sub_category")
+      .populate("attributes")
       .populate("variants")
       .then((result) => {
         const formattedResult = result.map((product) => {
@@ -33,18 +33,10 @@ export const getProducts = (req, res, next) => {
           const formattedUpdatedAt = moment(product.updatedAt).format(
             "YYYY/MM/DD HH:mm:ss"
           );
-          const formattedDateOfmanufacture = moment(
-            product.date_of_manufacture
-          ).format("YYYY/MM/DD HH:mm:ss");
-          const formattedExprirationDate = moment(
-            product.expiration_date
-          ).format("YYYY/MM/DD HH:mm:ss");
           return {
             ...product.toObject(),
             createdAt: formattedCreatedAt,
             updatedAt: formattedUpdatedAt,
-            date_of_manufacture: formattedDateOfmanufacture,
-            expiration_date: formattedExprirationDate,
           };
         });
         res.status(200).send(formattedResult);
@@ -125,6 +117,7 @@ export const getByIdProduct = (req, res, next) => {
     Product.findById(id)
       // .populate("category")
       .populate("variants")
+      .populate("attributes")
       .then((result) => {
         const formattedCreatedAt = moment(result.createdAt).format(
           "YYYY/MM/DD HH:mm:ss"
@@ -215,5 +208,18 @@ export const searchProducts = async (req, res, next) => {
     res.json(results);
   } catch (error) {
     res.status(500).json(error);
+  }
+};
+
+export const deleteAllProduct = (req, res, next) => {
+  try {
+    Product.deleteMany().then((result) => {
+      res.send(result);
+      return;
+    });
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+    return;
   }
 };

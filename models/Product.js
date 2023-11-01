@@ -46,11 +46,7 @@ const productSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "sub_categories",
     },
-    supplier_id: {
-      type: Schema.Types.ObjectId,
-      ref: "suppliers",
-      required: true,
-    },
+    attributes: [{ type: Schema.Types.ObjectId, ref: "product_attributes" }],
     variants: [{ type: Schema.Types.ObjectId, ref: "product_variants" }],
     is_delete: { type: Boolean, default: false },
   },
@@ -72,12 +68,6 @@ productSchema.virtual("category", {
 productSchema.virtual("sub_category", {
   ref: "sub_categories",
   localField: "sub_category_id",
-  foreignField: "_id",
-  justOne: true,
-});
-productSchema.virtual("supplier", {
-  ref: "suppliers",
-  localField: "supplier_id",
   foreignField: "_id",
   justOne: true,
 });

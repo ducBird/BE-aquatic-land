@@ -53,10 +53,10 @@ export const uploadImage = async (req, res, next) => {
         return;
       });
     }
-    if (collectionName === "variants") {
+    if (collectionName === "variants-p") {
       ProductVariant.findByIdAndUpdate(
         id,
-        { images: req.file.path },
+        { variant_image: req.file.path },
         {
           new: true,
         }
