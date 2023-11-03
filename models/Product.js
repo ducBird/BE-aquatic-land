@@ -13,28 +13,18 @@ const productSchema = new Schema(
       type: Number,
       required: false,
     },
+    stock: {
+      type: Number,
+      required: false,
+    },
+    is_variant: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     product_image: String,
     description: {
       type: String,
-    },
-    date_of_manufacture: {
-      type: Date,
-      required: [true, "Ngày sản xuất bắt buộc phải nhập"],
-      default: () => new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-      // Có thể viết chi tiết như sau
-      // default: function () {
-      //   var date = new Date();
-      //   var days = 30;
-      //   var miliSecondsPerDay = 24 * 60 * 60 * 1000;
-      //   var currentDate = date.getTime();
-      //   var modifiedDate = new Date(currentDate - days * miliSecondsPerDay);
-      //   return modifiedDate;
-      // },
-    },
-    expiration_date: {
-      type: Date,
-      required: [true, "Ngày hết hạn bắt buộc phải nhập"],
-      default: () => new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
     },
     sort_order: { type: Number, default: 10 },
     category_id: {
@@ -45,6 +35,7 @@ const productSchema = new Schema(
     sub_category_id: {
       type: Schema.Types.ObjectId,
       ref: "sub_categories",
+      required: false,
     },
     attributes: [{ type: Schema.Types.ObjectId, ref: "product_attributes" }],
     variants: [{ type: Schema.Types.ObjectId, ref: "product_variants" }],
