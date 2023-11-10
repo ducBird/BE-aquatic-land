@@ -93,7 +93,7 @@ const orderSchema = new Schema(
         message: `{VALUE} không phải là email hợp lệ`,
         // message: (props) => `{props.value} is not a valid email!`,
       },
-      unique: [true, "email đã tồn tại"],
+      // unique: [true, "email đã tồn tại"],
     },
     payment_information: {
       type: String,
