@@ -18,33 +18,33 @@ const orderSchema = new Schema(
   {
     //Khi nhập thì nhập "dd/mm/yyyy"
     shipped_date: {
-      type: String,
-      default: function () {
-        return moment().add(1, "hour").format("DD/MM/YYYY");
-      },
-      //cộng thên 1 giờ để lớn hơn ngày tạo đơn hàng
-      validate: {
-        validator: function (value) {
-          if (!value) return false;
-          // if (
-          //   moment(value, "DD/MM/YYYY").isValid() &&
-          //   moment(value, "DD/MM/YYYY").isSameOrAfter(this.createdAt)
-          //   // Kiểm tra dữ liệu có đúng ngày tháng năm hay không
-          //   // và kiểm tra ngày đó cùng ngày hoặc sau ngày tạo không
-          // ) {
-          //   return true;
-          // } else {
-          //   return false;
-          // }
-          const createdDate = moment(this.createdAt).startOf("day");
-          const shippedDate = moment(value, "DD/MM/YYYY")
-            .startOf("day")
-            .add(1, "hour");
-          //lấy ngày default để so sánh
-          return shippedDate.isAfter(createdDate);
-        },
-        message: "Ngày vận chuyển không hợp lệ hoặc nhỏ hơn ngày tạo đơn hàng!",
-      },
+      type: Date,
+      // default: function () {
+      //   return moment().add(1, "hour").format("DD/MM/YYYY");
+      // },
+      // //cộng thên 1 giờ để lớn hơn ngày tạo đơn hàng
+      // validate: {
+      //   validator: function (value) {
+      //     if (!value) return false;
+      //     // if (
+      //     //   moment(value, "DD/MM/YYYY").isValid() &&
+      //     //   moment(value, "DD/MM/YYYY").isSameOrAfter(this.createdAt)
+      //     //   // Kiểm tra dữ liệu có đúng ngày tháng năm hay không
+      //     //   // và kiểm tra ngày đó cùng ngày hoặc sau ngày tạo không
+      //     // ) {
+      //     //   return true;
+      //     // } else {
+      //     //   return false;
+      //     // }
+      //     const createdDate = moment(this.createdAt).startOf("day");
+      //     const shippedDate = moment(value, "DD/MM/YYYY")
+      //       .startOf("day")
+      //       .add(1, "hour");
+      //     //lấy ngày default để so sánh
+      //     return shippedDate.isAfter(createdDate);
+      //   },
+      //   message: "Ngày vận chuyển không hợp lệ hoặc nhỏ hơn ngày tạo đơn hàng!",
+      // },
     },
     status: {
       type: String,
@@ -58,6 +58,7 @@ const orderSchema = new Schema(
               "WAITING FOR PICKUP",
               "DELIVERING",
               "DELIVERED",
+              "RECEIVED",
               "CANCELLED",
               "RETURNS",
               "RETURNING",
