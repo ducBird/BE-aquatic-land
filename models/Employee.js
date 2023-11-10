@@ -57,8 +57,19 @@ const employeeSchema = new Schema(
       },
     },
     active: { type: Boolean, default: true },
-    // roles: { type: Boolean, default: false },
-    roles: { type: [], default: ["sales"] },
+    roles: {
+      type: String,
+      default: "sales",
+      validate: {
+        validator: (value) => {
+          if (["admin", "shipper", "sales"].includes(value)) {
+            return true;
+          }
+          return false;
+        },
+        message: `Vai trò: {VALUE} không hợp lệ!`,
+      },
+    },
     is_delete: { type: Boolean, default: false },
   },
   { timestamps: true } /* tự động tạo 2 field createdAt - updatedAt */

@@ -37,10 +37,14 @@ export const getOrder = async (req, res, next) => {
           const formattedUpdatedAt = moment(order.updatedAt).format(
             "DD/MM/YYYY-HH:mm:ss"
           );
+          const formattedShippedDate = moment(order.shipped_date).format(
+            "DD/MM/YYYY-HH:mm:ss"
+          );
           return {
             ...order.toObject(),
             createdAt: formattedCreatedAt,
             updatedAt: formattedUpdatedAt,
+            shipped_date: formattedShippedDate,
           };
         });
         res.status(200).send(formattedResult);
