@@ -8,6 +8,12 @@ export const getVouchers = (req, res, next) => {
       .sort({ name: 1 })
       .then((result) => {
         const formattedResult = result.map((voucher) => {
+          const formatedStartDate = moment(voucher.startDate).format(
+            "YYYY/MM/DD HH:mm:ss"
+          );
+          const formatedExpirationDate = moment(voucher.expirationDate).format(
+            "YYYY/MM/DD HH:mm:ss"
+          );
           const formattedCreatedAt = moment(voucher.createdAt).format(
             "YYYY/MM/DD HH:mm:ss"
           );
@@ -16,6 +22,8 @@ export const getVouchers = (req, res, next) => {
           );
           return {
             ...voucher.toObject(),
+            startDate: formatedStartDate,
+            expirationDate: formatedExpirationDate,
             createdAt: formattedCreatedAt,
             updatedAt: formattedUpdatedAt,
           };
@@ -36,6 +44,12 @@ export const getByIdVoucher = (req, res, next) => {
   try {
     const { id } = req.params;
     Voucher.findById(id).then((result) => {
+      const formatedStartDate = moment(voucher.startDate).format(
+        "YYYY/MM/DD HH:mm:ss"
+      );
+      const formatedExpirationDate = moment(voucher.expirationDate).format(
+        "YYYY/MM/DD HH:mm:ss"
+      );
       const formattedCreatedAt = moment(result.createdAt).format(
         "YYYY/MM/DD HH:mm:ss"
       );
@@ -44,6 +58,8 @@ export const getByIdVoucher = (req, res, next) => {
       );
       res.status(200).send({
         ...result.toObject(),
+        startDate: formatedStartDate,
+        expirationDate: formatedExpirationDate,
         createdAt: formattedCreatedAt,
         updatedAt: formattedUpdatedAt,
       });
@@ -70,7 +86,7 @@ export const postVoucher = async (req, res, next) => {
       name: data.name,
     });
     if (voucher) {
-      res.status(406).send({ msg: "Voucher name has been duplicated!" });
+      res.status(406).send({ msg: "Tên voucher không được trùng lặp" });
       return;
     }
     const newItem = new Voucher(data);
