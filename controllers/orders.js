@@ -69,6 +69,7 @@ export const getOrderId = async (req, res, next) => {
 export const postOrder = async (req, res, next) => {
   try {
     const data = req.body;
+    console.log(data);
     const newItem = new Order(data);
     newItem.save().then((result) => {
       res.send(result);
@@ -84,9 +85,13 @@ export const updateOrder = (req, res, next) => {
   try {
     const id = req.params.id;
     const data = req.body;
+    console.log(data.order_details);
     Order.findByIdAndUpdate(id, data, {
       new: true,
     }).then((result) => {
+      // xử lý cập nhật số lượng khi đặt hàng thành công
+      if (data.status === "WAITING FOR PICKUP") {
+      }
       res.status(200).send(result);
       return;
     });

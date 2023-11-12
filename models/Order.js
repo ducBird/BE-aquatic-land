@@ -99,11 +99,11 @@ const orderSchema = new Schema(
     payment_information: {
       type: String,
       required: [true, "Hình thức thanh toán bắt buộc phải nhập"],
-      default: "CASH",
+      default: "COD",
       validate: {
         validator: (value) => {
           if (
-            ["CASH", "VNPAY", "MOMO", "PAYPAL"].includes(value.toUpperCase())
+            ["COD", "VNPAY", "MOMO", "PAYPAL"].includes(value.toUpperCase())
           ) {
             return true;
           }
