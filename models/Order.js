@@ -16,35 +16,17 @@ orderDetailSchema.set("toObject", { virtuals: true });
 
 const orderSchema = new Schema(
   {
-    //Khi nhập thì nhập "dd/mm/yyyy"
     shipped_date: {
       type: Date,
-      // default: function () {
-      //   return moment().add(1, "hour").format("DD/MM/YYYY");
-      // },
-      // //cộng thên 1 giờ để lớn hơn ngày tạo đơn hàng
-      // validate: {
-      //   validator: function (value) {
-      //     if (!value) return false;
-      //     // if (
-      //     //   moment(value, "DD/MM/YYYY").isValid() &&
-      //     //   moment(value, "DD/MM/YYYY").isSameOrAfter(this.createdAt)
-      //     //   // Kiểm tra dữ liệu có đúng ngày tháng năm hay không
-      //     //   // và kiểm tra ngày đó cùng ngày hoặc sau ngày tạo không
-      //     // ) {
-      //     //   return true;
-      //     // } else {
-      //     //   return false;
-      //     // }
-      //     const createdDate = moment(this.createdAt).startOf("day");
-      //     const shippedDate = moment(value, "DD/MM/YYYY")
-      //       .startOf("day")
-      //       .add(1, "hour");
-      //     //lấy ngày default để so sánh
-      //     return shippedDate.isAfter(createdDate);
-      //   },
-      //   message: "Ngày vận chuyển không hợp lệ hoặc nhỏ hơn ngày tạo đơn hàng!",
-      // },
+    },
+    first_name: {
+      type: String,
+      required: [true, "Họ - Tên đệm bắt buộc phải nhập"],
+    },
+
+    last_name: {
+      type: String,
+      required: [true, "Tên bắt buộc phải nhập"],
     },
     status: {
       type: String,
@@ -75,25 +57,9 @@ const orderSchema = new Schema(
 
     description: String,
 
-    shipping_information: {
+    shipping_address: {
       type: String,
       required: [true, "Địa chỉ giao hàng bắt buộc phải nhập"],
-    },
-    shipping_city: {
-      type: String,
-      required: [true, "Thành phố bắt buộc phải nhập"],
-    },
-    email: {
-      type: String,
-      required: true,
-      validate: {
-        validator: function (value) {
-          const emailRegex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
-          return emailRegex.test(value);
-        },
-        message: `{VALUE} không phải là email hợp lệ`,
-        // message: (props) => `{props.value} is not a valid email!`,
-      },
     },
     payment_information: {
       type: String,
@@ -119,22 +85,13 @@ const orderSchema = new Schema(
       type: String,
       required: false,
     },
+    phoneNumber: {
+      type: String,
+      required: false,
+    },
     customer_id: {
       type: Schema.Types.ObjectId,
       ref: "customers",
-      required: false,
-    },
-    first_name: {
-      type: String,
-      required: [true, "Họ - Tên đệm bắt buộc phải nhập"],
-    },
-
-    last_name: {
-      type: String,
-      required: [true, "Tên bắt buộc phải nhập"],
-    },
-    phoneNumber: {
-      type: String,
       required: false,
     },
     employee_id: {
@@ -155,9 +112,6 @@ const orderSchema = new Schema(
 );
 orderSchema.virtual("full_name").get(function () {
   return this.first_name + " " + this.last_name;
-});
-orderSchema.virtual("full_address").get(function () {
-  return this.shipping_information + " - " + this.shipping_city;
 });
 
 // Virtual with Populate
