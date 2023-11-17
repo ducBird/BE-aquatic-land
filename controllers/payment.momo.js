@@ -10,7 +10,7 @@ export const PaymentMOMO = (req, res, next) => {
   var redirectUrl = "http://127.0.0.1:3000/component/checkcart/checkout";
   var ipnUrl = "http://127.0.0.1:3000/component/checkcart/checkout";
   var requestType = "payWithMethod";
-  var amount = "50000";
+  var amount = req.body.amount;
   var orderId = partnerCode + new Date().getTime();
   var requestId = orderId;
   var extraData = "";
@@ -89,9 +89,22 @@ export const PaymentMOMO = (req, res, next) => {
     console.log(`Status: ${res.statusCode}`);
     console.log(`Headers: ${JSON.stringify(res.headers)}`);
     res.setEncoding("utf8");
+    let payUrl;
     res.on("data", (body) => {
       console.log("Body: ");
       console.log(body);
+      payUrl = JSON.parse(body).payUrl;
+      console.log("PayUrl: ");
+      console.log(payUrl);
+      // Gửi phản hồi lại cho khách hàng bao gồm cả payUrl
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          success: true,
+          message: "Redirect URL obtained",
+          payUrl,
+        })
+      );
       console.log("resultCode: ");
       console.log(JSON.parse(body).resultCode);
     });
