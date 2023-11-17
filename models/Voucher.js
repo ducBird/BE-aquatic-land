@@ -70,6 +70,7 @@ const voucherSchema = new Schema(
       required: true,
       default: false,
     },
+    image_url: String,
   },
   /* tự động tạo 2 field createdAt - updatedAt */
   { timestamps: true }

@@ -1,13 +1,19 @@
 import mongoose from "mongoose";
 const { Schema, model } = mongoose;
-import moment from "moment";
 const orderDetailSchema = new Schema({
   product_id: { type: Schema.Types.ObjectId, ref: "products", required: false },
+  variants_id: { type: Schema.Types.ObjectId, ref: "product_variants" },
   quantity: { type: Number, require: false, min: 0 },
 });
 orderDetailSchema.virtual("product", {
   ref: "products",
   localField: "product_id",
+  foreignField: "_id",
+  justOne: true,
+});
+orderDetailSchema.virtual("variants", {
+  ref: "product_variants",
+  localField: "variants_id",
   foreignField: "_id",
   justOne: true,
 });
