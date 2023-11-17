@@ -215,19 +215,18 @@ export const registerCustomer = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, salt);
 
     if (!first_name || !last_name || !email || !password)
-      return res.status(400).json({ msg: "Please fill in all fields." });
+      return res.status(400).json({ msg: "Hãy điền vào tất cả các trường." });
 
     if (!validateEmail(email))
-      return res.status(400).json({ msg: "Invalid emails." });
+      return res.status(400).json({ msg: "Email không hợp lệ." });
 
     const user = await Customer.findOne({ email });
-    if (user)
-      return res.status(400).json({ msg: "This email already exists." });
+    if (user) return res.status(400).json({ msg: "Email này đã tồn tại." });
 
     if (password.length < 5 || password.length > 50)
       return res
         .status(400)
-        .json({ msg: "Password must be between 5 and 50 characters." });
+        .json({ msg: "Mật khẩu phải có từ 5 đến 50 ký tự." });
 
     const newUser = {
       first_name,
@@ -243,10 +242,10 @@ export const registerCustomer = async (req, res) => {
     ).toString("base64");
 
     const url = `${FRONTLINE_URL}/customers/activate/${activation_token}`;
-    sendEmail(email, url, "Verify your email address");
+    sendEmail(email, url, "Xác minh địa chỉ email của bạn");
 
     res.status(200).json({
-      msg: "Register Success! Please activate your email to start.",
+      msg: "Đăng ký thành công! Vui lòng kích hoạt email của bạn để bắt đầu.",
       customers: newUser,
     });
   } catch (err) {
@@ -265,8 +264,7 @@ export const activateEmail = async (req, res) => {
     const { first_name, last_name, email, password } = user;
 
     const check = await Customer.findOne({ email });
-    if (check)
-      return res.status(400).json({ msg: "This email already exists." });
+    if (check) return res.status(400).json({ msg: "Email này đã tồn tại!" });
     // console.log(user);
 
     const newUser = new Customer({
@@ -278,7 +276,7 @@ export const activateEmail = async (req, res) => {
 
     await newUser.save();
 
-    res.json({ msg: "Account has been activated!" });
+    res.json({ msg: "Tài khoản đã được kích hoạt" });
   } catch (err) {
     return res.status(500).json({ msg: err.message });
   }
@@ -289,11 +287,13 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
     const user = await Customer.findOne({ email });
     if (!user)
-      return res.status(400).json({ msg: "This email does not exist." });
+      return res
+        .status(400)
+        .json({ msg: "Email không tồn tại, hãy đăng ký một tài khoản." });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
-      return res.status(400).json({ msg: "Password is incorrect." });
+      return res.status(400).json({ msg: "Mật khẩu không chính xác!" });
     const access_token = createAccessToken({ id: user.id });
     const refresh_token = createRefreshToken({ id: user._id });
     res.cookie("refreshtoken", refresh_token, {
@@ -307,7 +307,7 @@ export const login = async (req, res) => {
     const { password: string, ...others } = user._doc;
     // console.log(refresh_token);
     res.json({
-      msg: "Login success!",
+      msg: "Đăng nhập thành công!",
       user: { ...others },
       access_token,
       refresh_token,
@@ -322,9 +322,9 @@ export const getAccessToken = (req, res) => {
     // const rf_token = req.cookies.refreshtoken;
     const refresh_token = req.body.refresh_token;
     if (!refresh_token)
-      return res.status(400).json({ msg: "Please login now!" });
+      return res.status(400).json({ msg: "Vui lòng đăng nhập!" });
     jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-      if (err) return res.status(400).json({ msg: "Please login now!" });
+      if (err) return res.status(400).json({ msg: "Vui lòng đăng nhập!" });
       const access_token = createAccessToken({ id: user.id });
       res.json({ access_token });
     });
@@ -333,10 +333,49 @@ export const getAccessToken = (req, res) => {
   }
 };
 
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await Customer.findOne({ email });
+    if (!user) return res.status(400).json({ msg: "Email không tồn tại!" });
+    // decode activate_token vì có dấu chấm khi gửi về client sẽ không nhận diện được đường dẫn
+    const access_token = Buffer.from(
+      createAccessToken({ id: user._id })
+    ).toString("base64");
+    const url = `${FRONTLINE_URL}/customers/reset/${access_token}`;
+
+    sendEmail(email, url, "Đặt lại mật khẩu của bạn");
+    res.json({
+      msg: "Đã gửi yêu cầu đổi mật khẩu, Vui lòng xem tin nhắn trong email!",
+    });
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    await Customer.findOneAndUpdate(
+      { _id: req.user.id },
+      {
+        password: passwordHash,
+      }
+    );
+
+    res.json({ msg: "Đổi mật khẩu thành công!" });
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
 export const logout = async (req, res) => {
   try {
     res.clearCookie("refreshtoken");
-    res.json({ msg: "Logged out." });
+    res.json({ msg: "Đã đăng xuất." });
   } catch (err) {
     return res.status(500).json({ msg: err.message });
   }

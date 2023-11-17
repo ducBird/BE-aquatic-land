@@ -3,6 +3,7 @@ import {
   activateEmail,
   deleteCartItemById,
   deleteCustomer,
+  forgotPassword,
   getAccessToken,
   getByIdCustomer,
   getCustomers,
@@ -10,6 +11,7 @@ import {
   logout,
   postCustomer,
   registerCustomer,
+  resetPassword,
   search,
   updateCartItemById,
   updateCustomer,
@@ -44,6 +46,8 @@ router.post("/register", registerCustomer);
 router.post("/activation", activateEmail);
 router.post("/login", login);
 router.post("/refresh-token", getAccessToken);
+router.post("/forgot", forgotPassword);
+router.post("/reset", verifyToken, resetPassword);
 router.get("/logout", logout);
 
 export default router;
