@@ -11,6 +11,8 @@ export const getCustomers = (req, res, next) => {
   try {
     Customer.find()
       .sort({ lastName: 1 })
+      .populate("customer_cart.product")
+      .populate("customer_cart.variants")
       .then((result) => {
         const formattedResult = result.map((customer) => {
           const formattedCreatedAt = moment(customer.createdAt).format(
@@ -44,23 +46,26 @@ export const getByIdCustomer = (req, res, next) => {
   }
   try {
     const { id } = req.params;
-    Customer.findById(id).then((result) => {
-      const formattedCreatedAt = moment(result.createdAt).format(
-        "YYYY/MM/DD HH:mm:ss"
-      );
-      const formattedUpdatedAt = moment(result.updatedAt).format(
-        "YYYY/MM/DD HH:mm:ss"
-      );
-      const formattedBirthDay = moment(result.birth_day).format(
-        "YYYY/MM/DD HH:mm:ss"
-      );
-      res.status(200).send({
-        ...result.toObject(),
-        birth_day: formattedBirthDay,
-        createdAt: formattedCreatedAt,
-        updatedAt: formattedUpdatedAt,
+    Customer.findById(id)
+      .populate("customer_cart.product")
+      .populate("customer_cart.variants")
+      .then((result) => {
+        const formattedCreatedAt = moment(result.createdAt).format(
+          "YYYY/MM/DD HH:mm:ss"
+        );
+        const formattedUpdatedAt = moment(result.updatedAt).format(
+          "YYYY/MM/DD HH:mm:ss"
+        );
+        const formattedBirthDay = moment(result.birth_day).format(
+          "YYYY/MM/DD HH:mm:ss"
+        );
+        res.status(200).send({
+          ...result.toObject(),
+          birth_day: formattedBirthDay,
+          createdAt: formattedCreatedAt,
+          updatedAt: formattedUpdatedAt,
+        });
       });
-    });
   } catch (error) {
     console.log("error", error);
     res.sendStatus(500);
@@ -116,6 +121,43 @@ export const updateCustomer = (req, res, next) => {
   }
 };
 
+// update customer dựa trên cart
+export const updateCartItemById = async (req, res, next) => {
+  try {
+    const customerId = req.params.customerId;
+    const cartItemId = req.params.cartItemId;
+    const { quantity } = req.body; // Lấy quantity từ body
+
+    const customer = await Customer.findById(customerId);
+
+    if (!customer) {
+      return res.status(404).json({ message: "Không tìm thấy khách hàng" });
+    }
+
+    // Tìm sản phẩm trong giỏ hàng có id trùng với cartItemId
+    const cartItem = customer.customer_cart.find(
+      (item) => item._id.toString() === cartItemId
+    );
+
+    if (!cartItem) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy sản phẩm trong giỏ hàng" });
+    }
+
+    // Cập nhật số lượng sản phẩm
+    cartItem.quantity = quantity;
+
+    // Lưu thay đổi vào cơ sở dữ liệu
+    await customer.save();
+
+    res.json({ message: "Cập nhật giỏ hàng thành công", customer });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+};
+
 // DELETE BY ID
 export const deleteCustomer = (req, res, next) => {
   try {
@@ -130,7 +172,41 @@ export const deleteCustomer = (req, res, next) => {
     return;
   }
 };
+// DELETE CART ITEM BY ID
+export const deleteCartItemById = async (req, res, next) => {
+  try {
+    const customerId = req.params.customerId;
+    const cartItemId = req.params.cartItemId;
 
+    const customer = await Customer.findById(customerId);
+
+    if (!customer) {
+      return res.status(404).json({ message: "Không tìm thấy khách hàng" });
+    }
+
+    // Tìm sản phẩm trong giỏ hàng có id trùng với cartItemId
+    const cartItemIndex = customer.customer_cart.findIndex(
+      (item) => item._id.toString() === cartItemId
+    );
+
+    if (cartItemIndex === -1) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy sản phẩm trong giỏ hàng" });
+    }
+
+    // Xóa sản phẩm khỏi giỏ hàng
+    customer.customer_cart.splice(cartItemIndex, 1);
+
+    // Lưu thay đổi vào cơ sở dữ liệu
+    await customer.save();
+
+    res.json({ message: "Xóa sản phẩm khỏi giỏ hàng thành công", customer });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+};
 // Register
 export const registerCustomer = async (req, res) => {
   try {

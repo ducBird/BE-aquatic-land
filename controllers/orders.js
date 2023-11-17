@@ -27,6 +27,7 @@ export const getOrder = async (req, res, next) => {
     Order.find()
       .sort({ createdAt: -1 })
       .populate("order_details.product")
+      .populate("order_details.variants")
       .populate("customer")
       .populate("employee")
       .then((result) => {
@@ -55,11 +56,33 @@ export const getOrder = async (req, res, next) => {
 };
 
 //Get id
-export const getOrderId = async (req, res, next) => {
+export const getOrderId = (req, res, next) => {
   try {
     const orderId = req.params.id;
-    const order = await Order.findById(orderId).populate("customer");
-    res.send(order);
+    Order.findById(orderId)
+      .populate("order_details.product")
+      .populate("order_details.variants")
+      .populate("customer")
+      .then((result) => {
+        const formattedResult = result.map((order) => {
+          const formattedCreatedAt = moment(order.createdAt).format(
+            "DD/MM/YYYY-HH:mm:ss"
+          );
+          const formattedUpdatedAt = moment(order.updatedAt).format(
+            "DD/MM/YYYY-HH:mm:ss"
+          );
+          const formattedShippedDate = moment(order.shipped_date).format(
+            "DD/MM/YYYY-HH:mm:ss"
+          );
+          return {
+            ...order.toObject(),
+            createdAt: formattedCreatedAt,
+            updatedAt: formattedUpdatedAt,
+            shipped_date: formattedShippedDate,
+          };
+        });
+        res.status(200).send(formattedResult);
+      });
   } catch (error) {
     res.sendStatus(500);
   }
@@ -205,20 +228,6 @@ export const orderByPaymentInformation = (req, res, next) => {
 
 // query theo trạng thái thanh toán
 export const orderByPaymentStatus = (req, res, next) => {
-  // const payment_status = true; // Đặt giá trị là boolean true
-  // let query = { payment_status };
-
-  // Order.find(query)
-  //   .populate("order_details.product")
-  //   .populate("customer")
-  //   .then((results) => {
-  //     res.json({ ok: true, results });
-  //     return;
-  //   })
-  //   .catch((errors) => {
-  //     res.status(500).json(errors);
-  //     return;
-  //   });
   try {
     let { payment_status, fromDate, toDate } = req.body;
     fromDate = new Date(fromDate);
@@ -626,10 +635,6 @@ export const queryOrderStatusFromdaytoday = (req, res, next) => {
     let { status, fromDate, toDate } = req.body;
     fromDate = new Date(fromDate);
     toDate = new Date(toDate);
-
-    // console.log("fromDate", fromDate);
-    // console.log("toDate", toDate);
-    // console.log("ststus", status);
 
     const compareStatus = { $eq: ["$status", status] };
     const compareFromDate = {

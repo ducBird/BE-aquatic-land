@@ -39,6 +39,7 @@ const productSchema = new Schema(
     },
     attributes: [{ type: Schema.Types.ObjectId, ref: "product_attributes" }],
     variants: [{ type: Schema.Types.ObjectId, ref: "product_variants" }],
+    reviews: [{ type: Schema.Types.ObjectId, ref: "product_reviews" }],
     is_delete: { type: Boolean, default: false },
   },
   {
@@ -67,35 +68,6 @@ productSchema.virtual("sub_category", {
 productSchema.virtual("total").get(function () {
   return (this.price * (100 - this.discount)) / 100;
 });
-
-// productSchema.virtual("stock").get(function () {
-//   return this.variants.reduce((total, variant) => {
-//     return total + variant.inventory_quantity;
-//   }, 0);
-// });
-
-// productSchema.virtual("price").get(function () {
-//   const prices = this.variants.map((variant) => variant.price_adjustment);
-//   return Math.min(...prices);
-// });
-// //hoặc có thể dùng cách này để lấy ra price_adjustment nhỏ nhất
-// productSchema.virtual("price").get(function () {
-//   // Lấy mảng variants từ product
-//   const variants = this.variants;
-
-//   // Nếu mảng variants không có phần tử nào, trả về null
-//   if (variants.length === 0) {
-//     return null;
-//   }
-
-//   // Tìm giá trị nhỏ nhất của price_adjustment
-//   const minPrice = variants.reduce((min, variant) => {
-//     return variant.price_adjustment < min ? variant.price_adjustment : min;
-//   }, variants[0].price_adjustment);
-
-//   // Trả về giá trị tìm được
-//   return minPrice;
-// });
 
 productSchema.set("toJSON", { virtuals: true });
 productSchema.set("toObject", { virtuals: true });
