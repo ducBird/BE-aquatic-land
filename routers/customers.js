@@ -1,6 +1,7 @@
 import express from "express";
 import {
   activateEmail,
+  changePassword,
   deleteCartItemById,
   deleteCustomer,
   forgotPassword,
@@ -48,6 +49,7 @@ router.post("/login", login);
 router.post("/refresh-token", getAccessToken);
 router.post("/forgot", forgotPassword);
 router.post("/reset", verifyToken, resetPassword);
+router.patch("/change/:id", verifyToken, changePassword);
 router.get("/logout", logout);
 
 export default router;

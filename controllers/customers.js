@@ -372,6 +372,34 @@ export const resetPassword = async (req, res) => {
   }
 };
 
+export const changePassword = async (req, res) => {
+  try {
+    const { password, newPassword } = req.body;
+    const id = req.params.id;
+
+    const user = await Customer.findOne({ _id: id });
+    if (!user) return res.status(400).json({ msg: "Tài khoản không đúng." });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(400).json({ msg: "Mật khẩu cũ không chính xác!" });
+
+    const salt = await bcrypt.genSalt(10);
+    const newPasswordHash = await bcrypt.hash(newPassword, salt);
+    await Customer.findOneAndUpdate(
+      { _id: id },
+      {
+        password: newPasswordHash,
+      }
+    );
+    res.json({
+      msg: "Mật khẩu được đổi thành công!",
+    });
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
 export const logout = async (req, res) => {
   try {
     res.clearCookie("refreshtoken");
